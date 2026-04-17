@@ -1,4 +1,4 @@
-# 🚀 VPS Starter Kit (Enterprise-Ready Docker DevOps Template)
+# 🚀 VPS Starter Kit (Docker DevOps Template)
 
 This repository is an **upgraded VPS starter kit** for bootstrapping a fresh **Ubuntu 24.04** server into a reusable, production-oriented Docker platform.
 
@@ -26,6 +26,7 @@ This version keeps the original starter-kit purpose intact while expanding it wi
 ## ✨ What This Starter Kit Includes
 
 ### Core Infrastructure
+
 - Docker Engine
 - Docker Compose plugin
 - UFW firewall
@@ -35,18 +36,21 @@ This version keeps the original starter-kit purpose intact while expanding it wi
 - Nginx Proxy Manager
 
 ### Databases and Cache
+
 - PostgreSQL template
 - MySQL template
 - Redis template
 - SQL Server template
 
 ### Application Deployment
+
 - reusable app template
 - deploy, migrate, health check, rollback script skeletons
 - CI/CD-ready folder layout
 - environment example files
 
 ### Shared Operations
+
 - shared backup orchestrator
 - shared health check runner
 - Docker cleanup helper
@@ -198,6 +202,7 @@ http://YOUR_SERVER_IP:81
 ```
 
 ### Important
+
 Change the default administrator credentials immediately after first login.
 
 Recommended responsibilities for Nginx Proxy Manager:
@@ -326,6 +331,7 @@ Recommended network usage:
 - apps needing database access join both networks if needed
 
 ### Example
+
 - `nextjs-web` → `proxy_network`
 - `postgres` → `db_network`
 - `nestjs-api` → `proxy_network` + `db_network`
@@ -348,6 +354,7 @@ Recommended baseline:
 - protect pgAdmin / Adminer / Portainer with NPM Access Lists
 
 Admin tools that should usually be protected:
+
 - pgAdmin
 - Adminer
 - Portainer
@@ -406,6 +413,7 @@ It does not force a specific backend or frontend stack.
 Instead, it provides a **shared infrastructure foundation** so you can deploy many kinds of apps using the same conventions.
 
 That makes it useful for:
+
 - personal infrastructure
 - freelance / agency delivery
 - multi-project VPS hosting
