@@ -1,0 +1,21 @@
+name: Deploy Example App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-reusable.yml
+    with:
+      app_dir: /opt/vps/vps-app/my-app
+      branch: main
+      run_backup: true
+      run_migrate: true
+      run_healthcheck: true
+    secrets:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_PORT: ${{ secrets.VPS_PORT }}

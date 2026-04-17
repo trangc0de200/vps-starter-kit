@@ -1,0 +1,26 @@
+services:
+  sqlserver:
+    image: ${MSSQL_IMAGE}
+    container_name: ${MSSQL_CONTAINER_NAME}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      ACCEPT_EULA: ${ACCEPT_EULA}
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD}
+      MSSQL_PID: ${MSSQL_PID}
+      TZ: ${TZ}
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./backups:/var/opt/mssql/backup
+    expose:
+      - "1433"
+    networks:
+      - db_network
+
+volumes:
+  sqlserver_data:
+
+networks:
+  db_network:
+    external: true

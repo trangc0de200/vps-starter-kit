@@ -1,0 +1,17 @@
+.DS_Store
+*.log
+*.bak
+*.tar.gz
+*.sql
+*.sql.gz
+*.dump
+*.zip
+.env
+.env.production
+node_modules/
+.venv/
+venv/
+dist/
+build/
+.idea/
+.vscode/

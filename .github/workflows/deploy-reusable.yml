@@ -1,0 +1,66 @@
+name: Reusable VPS Docker Deploy
+
+on:
+  workflow_call:
+    inputs:
+      app_dir:
+        required: true
+        type: string
+      branch:
+        required: true
+        type: string
+      run_backup:
+        required: false
+        type: boolean
+        default: true
+      run_migrate:
+        required: false
+        type: boolean
+        default: true
+      run_healthcheck:
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      VPS_HOST:
+        required: true
+      VPS_USER:
+        required: true
+      VPS_SSH_KEY:
+        required: true
+      VPS_PORT:
+        required: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            set -e
+            cd ${{ inputs.app_dir }}
+            git fetch origin
+            git reset --hard origin/${{ inputs.branch }}
+
+            if [ "${{ inputs.run_backup }}" = "true" ] && [ -f ./scripts/backup.sh ]; then
+              chmod +x ./scripts/backup.sh
+              ./scripts/backup.sh
+            fi
+
+            docker compose up -d --build
+
+            if [ "${{ inputs.run_migrate }}" = "true" ] && [ -f ./scripts/migrate.sh ]; then
+              chmod +x ./scripts/migrate.sh
+              ./scripts/migrate.sh
+            fi
+
+            if [ "${{ inputs.run_healthcheck }}" = "true" ] && [ -f ./scripts/healthcheck.sh ]; then
+              chmod +x ./scripts/healthcheck.sh
+              ./scripts/healthcheck.sh
+            fi
