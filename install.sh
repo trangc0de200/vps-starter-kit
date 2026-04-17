@@ -61,7 +61,7 @@ update_system() {
 
 install_base_packages() {
   log "Installing base packages..."
-  DEBIAN_FRONTEND=noninteractive apt-get install -y         curl wget git unzip ca-certificates gnupg lsb-release         ufw fail2ban cron jq htop net-tools software-properties-common
+  DEBIAN_FRONTEND=noninteractive apt-get install -y     curl wget git unzip rsync ca-certificates gnupg lsb-release     ufw fail2ban cron jq htop net-tools software-properties-common
 }
 
 set_timezone() {
@@ -78,11 +78,10 @@ install_docker() {
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
     chmod a+r /etc/apt/keyrings/docker.gpg
 
-    echo           "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-      $(. /etc/os-release && echo "${VERSION_CODENAME}") stable" > /etc/apt/sources.list.d/docker.list
+    echo       "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu       $(. /etc/os-release && echo "${VERSION_CODENAME}") stable" > /etc/apt/sources.list.d/docker.list
 
     apt-get update -y
-    DEBIAN_FRONTEND=noninteractive apt-get install -y           docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    DEBIAN_FRONTEND=noninteractive apt-get install -y       docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
   fi
 
   systemctl enable docker
@@ -129,7 +128,7 @@ create_layout() {
   log "Creating VPS folder layout at ${VPS_ROOT}..."
   mkdir -p "${VPS_ROOT}"
   mkdir -p "${VPS_ROOT}/backups"
-  rsync -a --delete         --exclude ".git"         --exclude ".github"         "${REPO_DIR}/vps-app" "${REPO_DIR}/vps-db" "${REPO_DIR}/vps-infra" "${VPS_ROOT}/"
+  rsync -a --delete     --exclude ".git"     --exclude ".github"     "${REPO_DIR}/vps-app" "${REPO_DIR}/vps-db" "${REPO_DIR}/vps-infra" "${REPO_DIR}/docs" "${VPS_ROOT}/"
   chown -R "${BOOTSTRAP_USER}:${BOOTSTRAP_USER}" "${VPS_ROOT}"
 }
 
@@ -154,7 +153,7 @@ create_shared_scripts() {
 #!/usr/bin/env bash
 set -euo pipefail
 
-for script in       /opt/vps/vps-db/postgres/scripts/backup_postgres.sh       /opt/vps/vps-db/mysql/scripts/backup_mysql.sh       /opt/vps/vps-db/redis/scripts/backup_redis.sh       /opt/vps/vps-db/sqlserver/scripts/backup_sqlserver.sh
+for script in   /opt/vps/vps-db/postgres/scripts/backup_postgres.sh   /opt/vps/vps-db/mysql/scripts/backup_mysql.sh   /opt/vps/vps-db/redis/scripts/backup_redis.sh   /opt/vps/vps-db/sqlserver/scripts/backup_sqlserver.sh
 do
   if [ -x "${script}" ]; then
     echo "Running ${script}"
@@ -167,6 +166,12 @@ EOF
 #!/usr/bin/env bash
 set -euo pipefail
 docker ps
+EOF
+
+  cat > "${VPS_ROOT}/vps-infra/shared/scripts/cleanup.sh" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+docker image prune -f
 EOF
 
   chmod +x "${VPS_ROOT}/vps-infra/shared/scripts/"*.sh

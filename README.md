@@ -1,24 +1,68 @@
-# 🚀 VPS Starter Kit Repository Template (Production-Ready)
+# 🚀 VPS Starter Kit (Production-Ready Docker DevOps Template)
 
-This repository provides a **production-ready VPS starter kit** for bootstrapping an Ubuntu 24.04 server using Docker in a consistent, repeatable way.
+This repository is a **full VPS starter kit** for bootstrapping a brand new **Ubuntu 24.04** server into a reusable, production-ready Docker platform.
 
-It is designed so you can:
+It is designed for people who want a practical starting point for:
 
-1. Buy a new VPS  
-2. Upload or `git clone` this repository  
-3. Run `sudo ./install.sh`  
-4. Start only the services you need from `vps-infra`, `vps-db`, and `vps-app`  
+- reverse proxy and HTTPS
+- databases and cache
+- containerized applications
+- backups and restore workflows
+- GitHub Actions CI/CD
+- consistent folder structure across projects
+
+With this kit, the usual process becomes:
+
+1. buy a new VPS  
+2. upload or clone this repository  
+3. run `sudo ./install.sh`  
+4. start only the services you need  
+5. deploy apps into a clean, repeatable structure  
 
 ---
 
-# 📁 Repository Structure
+## ✨ What This Starter Kit Includes
+
+### Infrastructure
+- Docker Engine
+- Docker Compose plugin
+- UFW firewall
+- Fail2Ban
+- deploy user bootstrap
+- shared Docker networks
+- Nginx Proxy Manager
+
+### Databases and Cache
+- PostgreSQL template
+- MySQL template
+- Redis template
+- SQL Server template
+
+### App Deployment
+- reusable app template
+- deploy, migrate, health check, rollback script skeletons
+- CI/CD-ready structure
+
+### Operations
+- shared helper scripts
+- backup-ready layout
+- GitHub Actions reusable workflow
+- production-oriented README structure
+
+---
+
+## 📁 Repository Structure
 
 ```text
 vps-starter-kit/
 ├── install.sh
 ├── README.md
+├── docs/
+│   └── OPERATIONS.md
 ├── .github/
 │   └── workflows/
+│       ├── deploy-reusable.yml
+│       └── deploy-example-app.yml
 ├── vps-app/
 │   └── app-template/
 ├── vps-db/
@@ -33,70 +77,112 @@ vps-starter-kit/
 
 ---
 
-# ⚙️ What `install.sh` Does
-
-The bootstrap script will:
-
-- Update and upgrade Ubuntu 24.04
-- Install essential system packages
-- Install Docker Engine and Docker Compose plugin
-- Enable Docker on system boot
-- Create a deployment user
-- Add the user to `sudo` and `docker` groups
-- Enable UFW firewall
-- Enable Fail2Ban
-- Create a standardized VPS directory structure
-- Create shared Docker networks:
-  - `proxy_network`
-  - `db_network`
-- Scaffold Nginx Proxy Manager
-- Copy all templates from this repository into the VPS
-
----
-
-# ⚡ Quick Start
+## ⚡ Quick Start
 
 ```bash
+git clone <your-repo-url>
+cd vps-starter-kit
 chmod +x install.sh
 sudo ./install.sh
 ```
 
-Or run with custom environment variables:
+### With optional environment variables
 
 ```bash
-sudo BOOTSTRAP_USER=deployer      VPS_ROOT=/opt/vps      INSTALL_NPM=yes      ENABLE_UFW=yes      ENABLE_FAIL2BAN=yes      TZ_VALUE=UTC      ./install.sh
+sudo BOOTSTRAP_USER=deployer      VPS_ROOT=/opt/vps      INSTALL_NPM=yes      ENABLE_UFW=yes      ENABLE_FAIL2BAN=yes      TZ_VALUE=UTC      PROXY_NETWORK=proxy_network      DB_NETWORK=db_network      ./install.sh
 ```
 
 ---
 
-# 🚀 After Installation
+## ⚙️ What `install.sh` Does
 
-## 1. Switch to the deploy user
+The bootstrap script will:
 
-```bash
-su - deployer
+- update and upgrade Ubuntu
+- install base packages
+- install Docker Engine and Docker Compose plugin
+- enable Docker on boot
+- create the deploy user
+- add the deploy user to `sudo` and `docker`
+- enable UFW
+- enable Fail2Ban
+- create the VPS directory structure
+- create shared Docker networks:
+  - `proxy_network`
+  - `db_network`
+- scaffold Nginx Proxy Manager
+- copy all templates into the target VPS root
+
+---
+
+## 🧱 VPS Directory Layout After Bootstrap
+
+By default, the script creates:
+
+```text
+/opt/vps/
+├── backups/
+├── vps-app/
+├── vps-db/
+└── vps-infra/
+```
+
+A more detailed view:
+
+```text
+/opt/vps/
+├── backups/
+├── vps-app/
+│   └── app-template/
+├── vps-db/
+│   ├── postgres/
+│   ├── mysql/
+│   ├── redis/
+│   └── sqlserver/
+└── vps-infra/
+    ├── nginx-proxy-manager/
+    └── shared/
 ```
 
 ---
 
-## 2. Start Nginx Proxy Manager
+## 🌐 Reverse Proxy Layer
+
+Nginx Proxy Manager is used as the shared reverse proxy entrypoint for all public services.
+
+Start it with:
 
 ```bash
 cd /opt/vps/vps-infra/nginx-proxy-manager
 docker compose up -d
 ```
 
-Default admin panel:
+Default admin UI:
 
-```
+```text
 http://YOUR_SERVER_IP:81
 ```
 
-⚠️ Change the default credentials immediately.
+### Important
+Change the default administrator credentials immediately after first login.
+
+Recommended responsibilities for Nginx Proxy Manager:
+
+- domain routing
+- SSL certificates with Let's Encrypt
+- Force SSL
+- Access Lists for admin tools
+- protecting dashboards and internal tools
 
 ---
 
-## 3. Start Required Databases
+## 🗄️ Database and Cache Services
+
+Each service is isolated in its own folder and includes:
+
+- `.env.example`
+- `docker-compose.yml`
+- backup script template
 
 ### PostgreSQL
 
@@ -137,7 +223,9 @@ docker compose up -d
 
 ---
 
-## 4. Create a New Application
+## 🚀 Create a New Application
+
+Create a new app from the template:
 
 ```bash
 cp -r /opt/vps/vps-app/app-template /opt/vps/vps-app/my-app
@@ -146,83 +234,165 @@ cp .env.production.example .env.production
 nano .env.production
 ```
 
+Then customize:
+
+- `docker-compose.yml`
+- `scripts/migrate.sh`
+- `scripts/healthcheck.sh`
+- `scripts/rollback.sh`
+
+This app template is intentionally generic so it can be adapted for:
+
+- Next.js
+- Nuxt.js
+- Vue
+- NestJS
+- Laravel
+- Django
+- FastAPI
+- Spring Boot
+- Go
+
 ---
 
-# 🌐 Networking Conventions
+## 🔁 CI/CD with GitHub Actions
 
-- Public-facing apps connect to: `proxy_network`
-- Databases and cache services connect to: `db_network`
-- Apps needing database access should connect to both networks if required
-
----
-
-# 📂 VPS Directory Layout (After Bootstrap)
+This repository includes a reusable workflow:
 
 ```text
-/opt/vps/
-├── backups/
-├── vps-app/
-├── vps-db/
-└── vps-infra/
+.github/workflows/deploy-reusable.yml
 ```
 
----
+Deployment flow:
 
-# 🔐 Production Best Practices
+```text
+git push → GitHub Actions → SSH → VPS → docker compose → migrate → healthcheck
+```
 
-- Always change default passwords
-- Never expose database ports publicly unless absolutely necessary
-- Use Nginx Proxy Manager Access Lists to protect:
-  - pgAdmin
-  - Adminer
-  - Portainer
-- Automate backups using cron jobs
-- Use GitHub Actions for deployment
-- Regularly test restore procedures (not just backups)
+The template supports:
 
----
-
-# 📌 Important Files
-
-- `install.sh` → full VPS bootstrap script  
-- `vps-infra/nginx-proxy-manager/docker-compose.yml` → reverse proxy layer  
-- `vps-db/*` → database and cache templates  
-- `vps-app/app-template/*` → application deployment template  
-- `.github/workflows/deploy-reusable.yml` → CI/CD deployment template  
+- reusable SSH deploy
+- migration hooks
+- health checks
+- optional pre-deploy backup
+- app-specific workflows calling the shared workflow
 
 ---
 
-# 🧠 Notes
+## 🌐 Networking Conventions
+
+Recommended network usage:
+
+- public apps join `proxy_network`
+- databases and cache join `db_network`
+- apps needing database access join both networks if needed
+
+### Example
+- `nextjs-web` → `proxy_network`
+- `postgres` → `db_network`
+- `nestjs-api` → `proxy_network` + `db_network`
+
+This keeps public exposure under control and makes service discovery cleaner.
+
+---
+
+## 🔐 Security Best Practices
+
+Recommended baseline:
+
+- expose only `80` and `443` publicly
+- keep databases internal only
+- use strong passwords in all `.env` files
+- enable UFW
+- enable Fail2Ban
+- use SSH keys
+- avoid public DB access unless absolutely necessary
+- protect pgAdmin / Adminer / Portainer with NPM Access Lists
+
+Admin tools that should usually be protected:
+- pgAdmin
+- Adminer
+- Portainer
+- Netdata
+- Grafana
+- internal dashboards
+
+---
+
+## 💾 Backups
+
+This kit is backup-ready, but not all backup cron jobs are enabled automatically by default.
+
+Backups are expected to live under:
+
+```text
+/opt/vps/backups/
+```
+
+Each DB template includes a backup script skeleton or ready-to-use script.
+
+Recommended approach:
+
+- daily scheduled backups
+- manual backup before risky changes
+- off-site backup later if needed
+- regular restore testing
+
+---
+
+## 📌 Important Files
+
+- `install.sh` → full VPS bootstrap
+- `vps-infra/nginx-proxy-manager/docker-compose.yml` → reverse proxy stack
+- `vps-db/*` → database and cache templates
+- `vps-app/app-template/*` → application deployment template
+- `.github/workflows/deploy-reusable.yml` → reusable CI/CD workflow
+- `docs/OPERATIONS.md` → day-to-day operational notes
+
+---
+
+## 🧠 Design Philosophy
 
 This repository is **framework-agnostic**.
 
-It does not enforce any specific tech stack.  
-Instead, it provides a **reusable infrastructure foundation** that can be applied to any project.
+It does not force a specific backend or frontend stack.
+
+Instead, it provides a **shared infrastructure foundation** so you can deploy many kinds of apps using the same conventions.
+
+That makes it useful for:
+- personal infrastructure
+- freelance / agency delivery
+- multi-project VPS hosting
+- internal company starter kits
 
 ---
 
-# ✅ Summary
+## ✅ Summary
 
-This starter kit helps you transform a fresh VPS into:
+This kit helps turn a fresh VPS into:
 
-✔ A structured, maintainable environment  
-✔ A repeatable deployment platform  
-✔ A production-ready DevOps foundation  
-
----
-
-# 🚀 Recommended Next Steps
-
-- Add CI/CD pipelines for each app
-- Configure automated backups
-- Add monitoring (Netdata / Grafana)
-- Implement staging vs production environments
-- Add CDN (Cloudflare)
+- a structured deployment platform
+- a reusable Docker hosting base
+- a safer production workflow
+- a cleaner DevOps foundation
 
 ---
 
-# 👨‍💻 Author
+## 🛠 Recommended Next Steps
 
-Designed for real-world production use.
+After bootstrap, the best next improvements are:
 
-Customize it to fit your DevOps workflow.
+- add real production `.env` files
+- add cron jobs for DB backups
+- add real app-specific deploy scripts
+- configure Nginx Proxy Manager domains
+- add GitHub repository secrets
+- enable CI/CD per application
+- add monitoring and alerting later
+
+---
+
+## 👨‍💻 Notes
+
+This repository is meant to be customized.  
+Treat it as a strong starting point, not a rigid final product.

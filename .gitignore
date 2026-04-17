@@ -8,10 +8,12 @@
 *.zip
 .env
 .env.production
+.env.local
 node_modules/
 .venv/
 venv/
 dist/
 build/
+coverage/
 .idea/
 .vscode/

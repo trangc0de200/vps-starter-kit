@@ -1,8 +1,8 @@
 # App Template
 
-Đây là template tối thiểu để khởi tạo một app mới trong starter kit.
+This folder is a reusable starting point for a new application deployment.
 
-## Cách dùng
+## Recommended process
 
 ```bash
 cp -r /opt/vps/vps-app/app-template /opt/vps/vps-app/my-app
@@ -11,10 +11,10 @@ cp .env.production.example .env.production
 nano .env.production
 ```
 
-Sau đó sửa:
+Then customize:
 - `docker-compose.yml`
 - `scripts/migrate.sh`
 - `scripts/healthcheck.sh`
 - `scripts/rollback.sh`
 
-cho đúng framework của app bạn.
+This template is intentionally generic.
