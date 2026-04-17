@@ -1,0 +1,5 @@
+# Daily database backups at 02:15
+15 2 * * * /opt/vps/vps-infra/shared/scripts/backup_all.sh >> /opt/vps/logs/backup_all.log 2>&1
+
+# Weekly cleanup at 03:00 on Sunday
+0 3 * * 0 /opt/vps/vps-infra/shared/scripts/cleanup.sh >> /opt/vps/logs/cleanup.log 2>&1

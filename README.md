@@ -1,34 +1,36 @@
-# 🚀 VPS Starter Kit (Production-Ready Docker DevOps Template)
+# 🚀 VPS Starter Kit (Enterprise-Ready Docker DevOps Template)
 
-This repository is a **full VPS starter kit** for bootstrapping a brand new **Ubuntu 24.04** server into a reusable, production-ready Docker platform.
+This repository is an **upgraded VPS starter kit** for bootstrapping a fresh **Ubuntu 24.04** server into a reusable, production-oriented Docker platform.
 
-It is designed for people who want a practical starting point for:
+It is designed for teams and individuals who want a clean operational baseline for:
 
 - reverse proxy and HTTPS
 - databases and cache
-- containerized applications
-- backups and restore workflows
+- application deployment
+- backup and restore workflows
 - GitHub Actions CI/CD
-- consistent folder structure across projects
+- shared operational scripts
+- long-term maintainability
 
-With this kit, the usual process becomes:
+This version keeps the original starter-kit purpose intact while expanding it with:
 
-1. buy a new VPS  
-2. upload or clone this repository  
-3. run `sudo ./install.sh`  
-4. start only the services you need  
-5. deploy apps into a clean, repeatable structure  
+- stronger shared operational scripts
+- better bootstrap automation
+- richer documentation
+- more complete service templates
+- reusable CI/CD patterns
+- better day-to-day administration helpers
 
 ---
 
 ## ✨ What This Starter Kit Includes
 
-### Infrastructure
+### Core Infrastructure
 - Docker Engine
 - Docker Compose plugin
 - UFW firewall
 - Fail2Ban
-- deploy user bootstrap
+- deployment user bootstrap
 - shared Docker networks
 - Nginx Proxy Manager
 
@@ -38,16 +40,20 @@ With this kit, the usual process becomes:
 - Redis template
 - SQL Server template
 
-### App Deployment
+### Application Deployment
 - reusable app template
 - deploy, migrate, health check, rollback script skeletons
-- CI/CD-ready structure
+- CI/CD-ready folder layout
+- environment example files
 
-### Operations
-- shared helper scripts
-- backup-ready layout
-- GitHub Actions reusable workflow
-- production-oriented README structure
+### Shared Operations
+- shared backup orchestrator
+- shared health check runner
+- Docker cleanup helper
+- VPS info script
+- service listing helper
+- cron examples
+- operations documentation
 
 ---
 
@@ -58,7 +64,9 @@ vps-starter-kit/
 ├── install.sh
 ├── README.md
 ├── docs/
-│   └── OPERATIONS.md
+│   ├── OPERATIONS.md
+│   ├── SECURITY.md
+│   └── BACKUP_AND_RESTORE.md
 ├── .github/
 │   └── workflows/
 │       ├── deploy-reusable.yml
@@ -73,6 +81,10 @@ vps-starter-kit/
 └── vps-infra/
     ├── nginx-proxy-manager/
     └── shared/
+        ├── bin/
+        ├── cron/
+        ├── scripts/
+        └── templates/
 ```
 
 ---
@@ -89,7 +101,17 @@ sudo ./install.sh
 ### With optional environment variables
 
 ```bash
-sudo BOOTSTRAP_USER=deployer      VPS_ROOT=/opt/vps      INSTALL_NPM=yes      ENABLE_UFW=yes      ENABLE_FAIL2BAN=yes      TZ_VALUE=UTC      PROXY_NETWORK=proxy_network      DB_NETWORK=db_network      ./install.sh
+sudo BOOTSTRAP_USER=deployer \
+     VPS_ROOT=/opt/vps \
+     INSTALL_NPM=yes \
+     AUTO_START_NPM=yes \
+     ENABLE_UFW=yes \
+     ENABLE_FAIL2BAN=yes \
+     INSTALL_CRON_EXAMPLES=yes \
+     TZ_VALUE=UTC \
+     PROXY_NETWORK=proxy_network \
+     DB_NETWORK=db_network \
+     ./install.sh
 ```
 
 ---
@@ -102,8 +124,8 @@ The bootstrap script will:
 - install base packages
 - install Docker Engine and Docker Compose plugin
 - enable Docker on boot
-- create the deploy user
-- add the deploy user to `sudo` and `docker`
+- create the deployment user
+- add the deployment user to `sudo` and `docker`
 - enable UFW
 - enable Fail2Ban
 - create the VPS directory structure
@@ -111,7 +133,10 @@ The bootstrap script will:
   - `proxy_network`
   - `db_network`
 - scaffold Nginx Proxy Manager
+- optionally auto-start Nginx Proxy Manager
 - copy all templates into the target VPS root
+- create shared helper scripts
+- optionally install cron examples
 
 ---
 
@@ -122,16 +147,25 @@ By default, the script creates:
 ```text
 /opt/vps/
 ├── backups/
+├── logs/
+├── scripts/
 ├── vps-app/
 ├── vps-db/
 └── vps-infra/
 ```
 
-A more detailed view:
+A more detailed operational view:
 
 ```text
 /opt/vps/
 ├── backups/
+│   ├── postgres/
+│   ├── mysql/
+│   ├── redis/
+│   ├── sqlserver/
+│   └── npm/
+├── logs/
+├── scripts/
 ├── vps-app/
 │   └── app-template/
 ├── vps-db/
@@ -150,7 +184,7 @@ A more detailed view:
 
 Nginx Proxy Manager is used as the shared reverse proxy entrypoint for all public services.
 
-Start it with:
+Start it manually:
 
 ```bash
 cd /opt/vps/vps-infra/nginx-proxy-manager
@@ -172,7 +206,7 @@ Recommended responsibilities for Nginx Proxy Manager:
 - SSL certificates with Let's Encrypt
 - Force SSL
 - Access Lists for admin tools
-- protecting dashboards and internal tools
+- protection for dashboards and internal tools
 
 ---
 
@@ -183,6 +217,7 @@ Each service is isolated in its own folder and includes:
 - `.env.example`
 - `docker-compose.yml`
 - backup script template
+- service-specific README
 
 ### PostgreSQL
 
@@ -207,6 +242,7 @@ docker compose up -d
 ```bash
 cd /opt/vps/vps-db/redis
 cp .env.example .env
+cp redis.conf.example redis.conf
 nano .env
 nano redis.conf
 docker compose up -d
@@ -231,6 +267,7 @@ Create a new app from the template:
 cp -r /opt/vps/vps-app/app-template /opt/vps/vps-app/my-app
 cd /opt/vps/vps-app/my-app
 cp .env.production.example .env.production
+cp docker-compose.yml.example docker-compose.yml
 nano .env.production
 ```
 
@@ -240,6 +277,7 @@ Then customize:
 - `scripts/migrate.sh`
 - `scripts/healthcheck.sh`
 - `scripts/rollback.sh`
+- `scripts/backup.sh` if your app owns state
 
 This app template is intentionally generic so it can be adapted for:
 
@@ -317,11 +355,15 @@ Admin tools that should usually be protected:
 - Grafana
 - internal dashboards
 
+See also:
+
+- `docs/SECURITY.md`
+
 ---
 
 ## 💾 Backups
 
-This kit is backup-ready, but not all backup cron jobs are enabled automatically by default.
+This kit is backup-ready, and the shared scripts make backup orchestration easier.
 
 Backups are expected to live under:
 
@@ -329,7 +371,7 @@ Backups are expected to live under:
 /opt/vps/backups/
 ```
 
-Each DB template includes a backup script skeleton or ready-to-use script.
+Each DB template includes a backup script.
 
 Recommended approach:
 
@@ -337,6 +379,10 @@ Recommended approach:
 - manual backup before risky changes
 - off-site backup later if needed
 - regular restore testing
+
+See also:
+
+- `docs/BACKUP_AND_RESTORE.md`
 
 ---
 

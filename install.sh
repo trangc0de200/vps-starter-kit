@@ -5,8 +5,10 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BOOTSTRAP_USER="${BOOTSTRAP_USER:-deployer}"
 VPS_ROOT="${VPS_ROOT:-/opt/vps}"
 INSTALL_NPM="${INSTALL_NPM:-yes}"
+AUTO_START_NPM="${AUTO_START_NPM:-yes}"
 ENABLE_UFW="${ENABLE_UFW:-yes}"
 ENABLE_FAIL2BAN="${ENABLE_FAIL2BAN:-yes}"
+INSTALL_CRON_EXAMPLES="${INSTALL_CRON_EXAMPLES:-yes}"
 TZ_VALUE="${TZ_VALUE:-UTC}"
 PROXY_NETWORK="${PROXY_NETWORK:-proxy_network}"
 DB_NETWORK="${DB_NETWORK:-db_network}"
@@ -23,7 +25,7 @@ detect_os() {
   . /etc/os-release
   [ "${ID:-}" = "ubuntu" ] || die "Ubuntu is required."
   if [ "${VERSION_ID:-}" != "24.04" ]; then
-    log "Warning: script was designed for Ubuntu 24.04, detected ${PRETTY_NAME:-unknown}."
+    log "Warning: this script was designed for Ubuntu 24.04, detected ${PRETTY_NAME:-unknown}."
   fi
 }
 
@@ -31,14 +33,16 @@ summary() {
   cat <<EOF
 
 Bootstrap configuration:
-  BOOTSTRAP_USER   = ${BOOTSTRAP_USER}
-  VPS_ROOT         = ${VPS_ROOT}
-  INSTALL_NPM      = ${INSTALL_NPM}
-  ENABLE_UFW       = ${ENABLE_UFW}
-  ENABLE_FAIL2BAN  = ${ENABLE_FAIL2BAN}
-  TZ_VALUE         = ${TZ_VALUE}
-  PROXY_NETWORK    = ${PROXY_NETWORK}
-  DB_NETWORK       = ${DB_NETWORK}
+  BOOTSTRAP_USER       = ${BOOTSTRAP_USER}
+  VPS_ROOT             = ${VPS_ROOT}
+  INSTALL_NPM          = ${INSTALL_NPM}
+  AUTO_START_NPM       = ${AUTO_START_NPM}
+  ENABLE_UFW           = ${ENABLE_UFW}
+  ENABLE_FAIL2BAN      = ${ENABLE_FAIL2BAN}
+  INSTALL_CRON_EXAMPLES= ${INSTALL_CRON_EXAMPLES}
+  TZ_VALUE             = ${TZ_VALUE}
+  PROXY_NETWORK        = ${PROXY_NETWORK}
+  DB_NETWORK           = ${DB_NETWORK}
 
 EOF
 }
@@ -127,8 +131,12 @@ configure_fail2ban() {
 create_layout() {
   log "Creating VPS folder layout at ${VPS_ROOT}..."
   mkdir -p "${VPS_ROOT}"
-  mkdir -p "${VPS_ROOT}/backups"
+  mkdir -p "${VPS_ROOT}/backups"/{postgres,mysql,redis,sqlserver,npm}
+  mkdir -p "${VPS_ROOT}/logs"
+  mkdir -p "${VPS_ROOT}/scripts"
+
   rsync -a --delete     --exclude ".git"     --exclude ".github"     "${REPO_DIR}/vps-app" "${REPO_DIR}/vps-db" "${REPO_DIR}/vps-infra" "${REPO_DIR}/docs" "${VPS_ROOT}/"
+
   chown -R "${BOOTSTRAP_USER}:${BOOTSTRAP_USER}" "${VPS_ROOT}"
 }
 
@@ -136,6 +144,13 @@ create_networks() {
   log "Creating Docker networks if missing..."
   docker network inspect "${PROXY_NETWORK}" >/dev/null 2>&1 || docker network create "${PROXY_NETWORK}"
   docker network inspect "${DB_NETWORK}" >/dev/null 2>&1 || docker network create "${DB_NETWORK}"
+}
+
+prepare_redis_conf() {
+  local redis_dir="${VPS_ROOT}/vps-db/redis"
+  if [ -f "${redis_dir}/redis.conf.example" ] && [ ! -f "${redis_dir}/redis.conf" ]; then
+    cp "${redis_dir}/redis.conf.example" "${redis_dir}/redis.conf"
+  fi
 }
 
 maybe_disable_npm() {
@@ -153,8 +168,15 @@ create_shared_scripts() {
 #!/usr/bin/env bash
 set -euo pipefail
 
-for script in   /opt/vps/vps-db/postgres/scripts/backup_postgres.sh   /opt/vps/vps-db/mysql/scripts/backup_mysql.sh   /opt/vps/vps-db/redis/scripts/backup_redis.sh   /opt/vps/vps-db/sqlserver/scripts/backup_sqlserver.sh
-do
+ROOT="/opt/vps"
+SCRIPTS=(
+  "${ROOT}/vps-db/postgres/scripts/backup_postgres.sh"
+  "${ROOT}/vps-db/mysql/scripts/backup_mysql.sh"
+  "${ROOT}/vps-db/redis/scripts/backup_redis.sh"
+  "${ROOT}/vps-db/sqlserver/scripts/backup_sqlserver.sh"
+)
+
+for script in "${SCRIPTS[@]}"; do
   if [ -x "${script}" ]; then
     echo "Running ${script}"
     "${script}"
@@ -165,17 +187,92 @@ EOF
   cat > "${VPS_ROOT}/vps-infra/shared/scripts/healthcheck_all.sh" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
+
+echo "Docker containers:"
 docker ps
+
+echo
+echo "Disk usage:"
+df -h
+
+echo
+echo "Docker networks:"
+docker network ls
 EOF
 
   cat > "${VPS_ROOT}/vps-infra/shared/scripts/cleanup.sh" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
+
+echo "Pruning dangling Docker images..."
 docker image prune -f
+
+echo "Pruning unused build cache..."
+docker builder prune -f
+
+echo "Done."
+EOF
+
+  cat > "${VPS_ROOT}/vps-infra/shared/scripts/show_vps_info.sh" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Hostname:"
+hostname
+
+echo
+echo "Uptime:"
+uptime
+
+echo
+echo "Memory:"
+free -h
+
+echo
+echo "Disk:"
+df -h
+
+echo
+echo "Docker:"
+docker --version
+docker compose version
+EOF
+
+  cat > "${VPS_ROOT}/vps-infra/shared/scripts/list_services.sh" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="/opt/vps"
+
+find "${ROOT}" -maxdepth 3 -name "docker-compose.yml" -o -name "docker-compose.yaml" | sort
 EOF
 
   chmod +x "${VPS_ROOT}/vps-infra/shared/scripts/"*.sh
   chown -R "${BOOTSTRAP_USER}:${BOOTSTRAP_USER}" "${VPS_ROOT}/vps-infra/shared"
+}
+
+install_cron_examples() {
+  [ "${INSTALL_CRON_EXAMPLES}" = "yes" ] || { log "Skipping cron examples."; return; }
+
+  mkdir -p "${VPS_ROOT}/vps-infra/shared/cron"
+
+  cat > "${VPS_ROOT}/vps-infra/shared/cron/example-crontab.txt" <<'EOF'
+# Daily database backups at 02:15
+15 2 * * * /opt/vps/vps-infra/shared/scripts/backup_all.sh >> /opt/vps/logs/backup_all.log 2>&1
+
+# Weekly cleanup at 03:00 on Sunday
+0 3 * * 0 /opt/vps/vps-infra/shared/scripts/cleanup.sh >> /opt/vps/logs/cleanup.log 2>&1
+EOF
+
+  chown -R "${BOOTSTRAP_USER}:${BOOTSTRAP_USER}" "${VPS_ROOT}/vps-infra/shared/cron"
+}
+
+auto_start_npm() {
+  if [ "${INSTALL_NPM}" = "yes" ] && [ "${AUTO_START_NPM}" = "yes" ]; then
+    log "Auto-starting Nginx Proxy Manager..."
+    cd "${VPS_ROOT}/vps-infra/nginx-proxy-manager"
+    docker compose up -d
+  fi
 }
 
 final_notes() {
@@ -190,7 +287,7 @@ Next steps:
   2. Switch user:
        su - ${BOOTSTRAP_USER}
 
-  3. Start Nginx Proxy Manager:
+  3. If NPM was not auto-started:
        cd ${VPS_ROOT}/vps-infra/nginx-proxy-manager
        docker compose up -d
 
@@ -202,11 +299,16 @@ Next steps:
   6. Start the DB/cache services you need:
        cd ${VPS_ROOT}/vps-db/postgres && cp .env.example .env && nano .env && docker compose up -d
        cd ${VPS_ROOT}/vps-db/mysql && cp .env.example .env && nano .env && docker compose up -d
-       cd ${VPS_ROOT}/vps-db/redis && cp .env.example .env && nano .env && docker compose up -d
+       cd ${VPS_ROOT}/vps-db/redis && cp .env.example .env && cp redis.conf.example redis.conf && nano .env && docker compose up -d
        cd ${VPS_ROOT}/vps-db/sqlserver && cp .env.example .env && nano .env && docker compose up -d
 
   7. Create a new app from template:
        cp -r ${VPS_ROOT}/vps-app/app-template ${VPS_ROOT}/vps-app/my-app
+
+  8. Review:
+       ${VPS_ROOT}/docs/OPERATIONS.md
+       ${VPS_ROOT}/docs/SECURITY.md
+       ${VPS_ROOT}/docs/BACKUP_AND_RESTORE.md
 
 EOF
 }
@@ -225,8 +327,11 @@ main() {
   configure_fail2ban
   create_layout
   create_networks
+  prepare_redis_conf
   maybe_disable_npm
   create_shared_scripts
+  install_cron_examples
+  auto_start_npm
   final_notes
 }
 
