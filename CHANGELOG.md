@@ -1,29 +1,26 @@
 # Changelog
 
-## [3.0.0] - Complete V3 Upgrade
+## [4.0.0] - Complete V4 Upgrade
 ### Added
-- Staging and production deployment strategy
-- Reusable GitHub Actions deployment workflow with environment support
-- Manual deploy workflow (`workflow_dispatch`)
-- Rollback workflow
-- Per-app deploy workflow template
-- Deployment lock protection with concurrency
-- Safer deploy scripts with branch/target support
-- Shared rollback helper
-- Environment-aware app template
-- CI/CD documentation for v3
+- Multi-layer backup strategy documentation
+- Shared backup verification helper
+- Shared retention helper
+- Shared off-site sync placeholder
+- Shared restore test checklist
+- Service-level restore placeholders and notes
+- Backup reporting workflow example
+- Extended cron examples for backup operations
+- Backup and restore documentation upgraded to V4 scope
 
 ### Improved
-- Bootstrap automation
-- Shared operational scripts
-- Repository documentation
-- App template structure
-- Deployment safety
+- Existing backup scripts retained and extended operationally
+- Shared script layer improved for disaster recovery support
+- Documentation expanded for production recovery workflows
 
 ### Preserved
-- All existing starter kit functionality from previous versions
-- All database templates
+- All functionality from V1, V2, and V3
+- Bootstrap automation
+- Database templates
 - Nginx Proxy Manager template
-- Backup scripts
-- Shared helper scripts
-- Existing operational layout
+- CI/CD workflows
+- App template and shared operations

@@ -1,3 +1,3 @@
-# PostgreSQL Template
+# Postgres Template
 
-This folder contains a production-oriented PostgreSQL template.
+Production-oriented postgres template.

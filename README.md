@@ -1,17 +1,16 @@
-# 🚀 VPS Starter Kit (V3 Complete - Production-Ready Docker DevOps Template)
+# 🚀 VPS Starter Kit (V4 Complete - Production-Ready Docker DevOps Template)
 
-This repository provides a **complete V3 upgrade** of the VPS Starter Kit for bootstrapping and operating a production-oriented Docker-based platform on **Ubuntu 24.04**.
+This repository provides a **complete V4 upgrade** of the VPS Starter Kit for bootstrapping and operating a production-oriented Docker platform on **Ubuntu 24.04**.
 
-This version keeps all previously available functionality and adds a **complete V3 CI/CD layer**, including:
+This version keeps all previously available functionality and adds a **complete V4 backup and disaster recovery layer**, including:
 
-- production and staging deployment strategy
-- reusable GitHub Actions workflows
-- manual deployment triggers
-- rollback workflows
-- per-app deployment pattern
-- safer deployment scripts
-- deployment concurrency protection
-- stronger operational documentation
+- backup tiering guidance
+- backup verification helpers
+- restore workflow placeholders
+- restore test checklist
+- off-site sync placeholders
+- stronger retention and recovery documentation
+- operational backup orchestration improvements
 
 It is designed for teams and individuals who want a practical self-hosted DevOps foundation for:
 
@@ -22,6 +21,7 @@ It is designed for teams and individuals who want a practical self-hosted DevOps
 - GitHub Actions CI/CD
 - shared operational scripts
 - long-term maintainability
+- disaster recovery readiness
 
 ---
 
@@ -55,17 +55,21 @@ It is designed for teams and individuals who want a practical self-hosted DevOps
 - VPS info script
 - service listing helper
 - rollback helper
+- backup verification helper
+- retention helper
+- off-site sync placeholder
 - cron examples
 - operations, security, backup, and CI/CD documentation
 
-### V3 CI/CD Additions
+### V3 + V4 Platform Additions
 - reusable deployment workflow
 - staging workflow pattern
 - production workflow pattern
 - manual deployment workflow
 - rollback workflow
-- concurrency lock
-- environment-aware deploy script pattern
+- concurrency protection
+- environment-aware app template
+- backup and recovery readiness layer
 
 ---
 
@@ -81,7 +85,8 @@ vps-starter-kit/
 │   ├── OPERATIONS.md
 │   ├── SECURITY.md
 │   ├── BACKUP_AND_RESTORE.md
-│   └── CICD_V3.md
+│   ├── CICD_V3.md
+│   └── DISASTER_RECOVERY.md
 ├── .github/
 │   └── workflows/
 │       ├── deploy-reusable.yml
@@ -89,7 +94,8 @@ vps-starter-kit/
 │       ├── deploy-staging-example.yml
 │       ├── deploy-production-example.yml
 │       ├── manual-deploy-example.yml
-│       └── rollback-example.yml
+│       ├── rollback-example.yml
+│       └── backup-report-example.yml
 ├── vps-app/
 │   └── app-template/
 ├── vps-db/
@@ -154,7 +160,7 @@ The bootstrap script will:
 - scaffold Nginx Proxy Manager
 - optionally auto-start Nginx Proxy Manager
 - copy all templates into the target VPS root
-- create shared helper scripts
+- ensure shared helper scripts are ready
 - optionally install cron examples
 
 ---
@@ -271,7 +277,7 @@ Then customize:
 
 ## 🔁 V3 CI/CD Highlights
 
-This version introduces a more complete deployment model:
+This version keeps the complete V3 deployment model:
 
 - staging and production workflow separation
 - reusable workflow with environment inputs
@@ -288,13 +294,24 @@ docs/CICD_V3.md
 
 ---
 
-## 🌐 Networking Conventions
+## 💾 V4 Backup and Recovery Highlights
 
-Recommended network usage:
+This version upgrades the backup and recovery layer with:
 
-- public apps join `proxy_network`
-- databases and cache join `db_network`
-- apps needing database access join both networks if needed
+- shared backup verification helper
+- shared retention helper
+- shared off-site sync placeholder
+- restore test checklist
+- disaster recovery notes
+- backup report workflow example
+- extended cron examples for backup operations
+
+See:
+
+```text
+docs/BACKUP_AND_RESTORE.md
+docs/DISASTER_RECOVERY.md
+```
 
 ---
 
@@ -317,49 +334,16 @@ See also:
 
 ---
 
-## 💾 Backups
-
-Backups are expected to live under:
-
-```text
-/opt/vps/backups/
-```
-
-Each DB template includes a backup script.
-
-Recommended approach:
-
-- daily scheduled backups
-- manual backup before risky changes
-- off-site backup later if needed
-- regular restore testing
-
-See also:
-
-- `docs/BACKUP_AND_RESTORE.md`
-
----
-
-## 📌 Important Files
-
-- `install.sh` → full VPS bootstrap
-- `vps-infra/nginx-proxy-manager/docker-compose.yml` → reverse proxy stack
-- `vps-db/*` → database and cache templates
-- `vps-app/app-template/*` → application deployment template
-- `.github/workflows/deploy-reusable.yml` → reusable CI/CD workflow
-- `docs/CICD_V3.md` → v3 deployment documentation
-
----
-
 ## ✅ Summary
 
-This V3 Complete release helps turn a fresh VPS into:
+This V4 Complete release helps turn a fresh VPS into:
 
 - a structured deployment platform
 - a reusable Docker hosting base
 - a safer production workflow
 - a cleaner DevOps foundation
 - a more complete CI/CD platform
+- a more complete backup and recovery platform
 
 ---
 
@@ -368,7 +352,8 @@ This V3 Complete release helps turn a fresh VPS into:
 After bootstrap, the best next improvements are:
 
 - add real production and staging `.env` files
-- add app-specific migration commands
+- connect backup scripts to cron
+- test restore procedures in a staging environment
 - configure Nginx Proxy Manager domains
 - add GitHub repository secrets
 - connect workflows to real app folders

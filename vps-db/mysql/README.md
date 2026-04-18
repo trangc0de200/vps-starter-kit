@@ -1,3 +1,3 @@
-# MySQL Template
+# Mysql Template
 
-This folder contains a production-oriented MySQL template.
+Production-oriented mysql template.

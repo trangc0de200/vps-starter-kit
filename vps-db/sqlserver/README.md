@@ -1,3 +1,3 @@
-# SQL Server Template
+# Sqlserver Template
 
-This folder contains a production-oriented SQL Server template.
+Production-oriented sqlserver template.

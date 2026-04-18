@@ -131,7 +131,7 @@ configure_fail2ban() {
 create_layout() {
   log "Creating VPS folder layout at ${VPS_ROOT}..."
   mkdir -p "${VPS_ROOT}"
-  mkdir -p "${VPS_ROOT}/backups"/{postgres,mysql,redis,sqlserver,npm}
+  mkdir -p "${VPS_ROOT}/backups"/{postgres,mysql,redis,sqlserver,npm,daily,weekly,monthly}
   mkdir -p "${VPS_ROOT}/logs"
   mkdir -p "${VPS_ROOT}/scripts"
 
@@ -216,6 +216,7 @@ Next steps:
        ${VPS_ROOT}/docs/SECURITY.md
        ${VPS_ROOT}/docs/BACKUP_AND_RESTORE.md
        ${VPS_ROOT}/docs/CICD_V3.md
+       ${VPS_ROOT}/docs/DISASTER_RECOVERY.md
 
 EOF
 }

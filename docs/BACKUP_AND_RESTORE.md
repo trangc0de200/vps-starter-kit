@@ -8,9 +8,10 @@ This starter kit includes backup script templates for:
 
 ## Recommended Policy
 - daily scheduled backups
+- weekly retained backups
+- monthly retained backups
 - manual backup before risky changes
-- keep at least 7 to 14 days of backup retention
-- test restore regularly
+- regular restore testing
 
 ## Key Principle
 A backup is not trustworthy until you have tested a restore.
@@ -20,6 +21,18 @@ A backup is not trustworthy until you have tested a restore.
 - validate the service starts correctly
 - validate the application can connect if relevant
 - document restore time and issues
+
+## Suggested Directory Logic
+You may later separate backup tiers like:
+- `/opt/vps/backups/daily`
+- `/opt/vps/backups/weekly`
+- `/opt/vps/backups/monthly`
+
+## Shared Backup Helpers
+This version adds shared helpers for:
+- backup verification
+- retention cleanup
+- off-site sync placeholders
 
 ## Shared Backups Folder
 Expected root:
