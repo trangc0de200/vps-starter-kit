@@ -1,11 +1,3 @@
-.DS_Store
-*.log
-*.bak
-*.tar.gz
-*.sql
-*.sql.gz
-*.dump
-*.zip
 .env
 .env.production
 .env.staging
@@ -20,3 +12,8 @@ coverage/
 .vscode/
 __pycache__/
 *.pyc
+*.log
+*.zip
+*.sql
+*.sql.gz
+*.bak

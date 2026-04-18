@@ -41,7 +41,6 @@ jobs:
     concurrency:
       group: deploy-${{ inputs.app_dir }}-${{ inputs.target_env }}
       cancel-in-progress: false
-
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -55,20 +54,7 @@ jobs:
             cd ${{ inputs.app_dir }}
             git fetch origin
             git reset --hard origin/${{ inputs.branch }}
-
-            if [ "${{ inputs.run_backup }}" = "true" ] && [ -f ./scripts/backup.sh ]; then
-              chmod +x ./scripts/backup.sh
-              ./scripts/backup.sh
-            fi
-
+            if [ "${{ inputs.run_backup }}" = "true" ] && [ -f ./scripts/backup.sh ]; then chmod +x ./scripts/backup.sh; ./scripts/backup.sh; fi
             docker compose up -d --build
-
-            if [ "${{ inputs.run_migrate }}" = "true" ] && [ -f ./scripts/migrate.sh ]; then
-              chmod +x ./scripts/migrate.sh
-              ./scripts/migrate.sh "${{ inputs.target_env }}"
-            fi
-
-            if [ "${{ inputs.run_healthcheck }}" = "true" ] && [ -f ./scripts/healthcheck.sh ]; then
-              chmod +x ./scripts/healthcheck.sh
-              ./scripts/healthcheck.sh "${{ inputs.target_env }}"
-            fi
+            if [ "${{ inputs.run_migrate }}" = "true" ] && [ -f ./scripts/migrate.sh ]; then chmod +x ./scripts/migrate.sh; ./scripts/migrate.sh "${{ inputs.target_env }}"; fi
+            if [ "${{ inputs.run_healthcheck }}" = "true" ] && [ -f ./scripts/healthcheck.sh ]; then chmod +x ./scripts/healthcheck.sh; ./scripts/healthcheck.sh "${{ inputs.target_env }}"; fi

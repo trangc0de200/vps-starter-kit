@@ -2,4 +2,3 @@
 set -euo pipefail
 docker image prune -f
 docker builder prune -f
-echo "Cleanup complete."

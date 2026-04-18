@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: "Commit hash or tag"
+        description: Commit hash or tag
         required: true
 jobs:
   rollback:

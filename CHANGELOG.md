@@ -1,27 +1,21 @@
 # Changelog
 
-## [5.0.0] - Complete V5 Upgrade
+## [6.0.0] - Complete V6 Upgrade
 ### Added
-- Monitoring layer with Netdata template
-- Uptime Kuma template
-- Prometheus + Grafana placeholder stack
-- Monitoring and observability documentation
-- Shared monitoring helper scripts
-- Alert placeholder workflow
-- SSL and endpoint check helper
-- Container and disk check helper
-- Monitoring cron example
+- Security hardening layer
+- SSH hardening templates
+- Fail2Ban configuration templates
+- Security audit helper scripts
+- Open ports review helper
+- UFW review helper
+- Docker security notes
+- Nginx Proxy Manager access protection notes
+- Security report workflow example
 
 ### Improved
-- Existing operational scripts retained and expanded
-- Existing backup and recovery layer preserved
-- Shared documentation extended for observability
+- Existing operational scripts retained and extended
+- Existing monitoring, backup, and CI/CD layers preserved
+- Security guidance integrated into the platform structure
 
 ### Preserved
-- All functionality from V1, V2, V3, and V4
-- Bootstrap automation
-- Database templates
-- Nginx Proxy Manager template
-- CI/CD workflows
-- Backup and recovery workflows
-- App template and shared operations
+- All functionality from V1, V2, V3, V4, and V5

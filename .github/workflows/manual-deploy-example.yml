@@ -3,13 +3,13 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: "Git branch to deploy"
+        description: Git branch to deploy
         required: true
-        default: "main"
+        default: main
       target_env:
-        description: "Target environment"
+        description: Target environment
         required: true
-        default: "production"
+        default: production
 jobs:
   deploy:
     uses: ./.github/workflows/deploy-reusable.yml

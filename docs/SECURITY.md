@@ -1,6 +1,4 @@
-# Security Notes
-
-This starter kit follows a practical baseline security model.
+# Security Guide
 
 ## Recommended Public Ports
 - 22/tcp for SSH
@@ -17,3 +15,9 @@ This starter kit follows a practical baseline security model.
 - enable UFW
 - enable Fail2Ban
 - protect internal admin tools using NPM Access Lists
+
+## Docker Security Basics
+- prefer internal-only networks for databases
+- avoid unnecessary published ports
+- run only required services
+- review image sources before production use
