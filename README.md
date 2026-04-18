@@ -1,4 +1,4 @@
-# 🚀 VPS Starter Kit (V7.2 Complete - Full, No-Compromise DevOps Platform Template)
+# 🚀 VPS Starter Kit (DevOps Platform Template)
 
 This repository is a full, production-oriented VPS starter platform for Ubuntu 24.04 built around Docker, repeatable operations, and practical DevOps workflows.
 
@@ -9,6 +9,7 @@ This V7.2 release keeps all previously introduced layers from V1 to V7.1 and imp
 ## Main Goals
 
 This template is designed to help you:
+
 1. provision a fresh VPS
 2. clone this repository
 3. run the bootstrap script
@@ -21,6 +22,7 @@ This repository is meant to be more than a random collection of Docker Compose f
 ## Platform Capabilities
 
 ### Infrastructure
+
 - Docker Engine
 - Docker Compose plugin
 - UFW firewall
@@ -30,12 +32,14 @@ This repository is meant to be more than a random collection of Docker Compose f
 - Nginx Proxy Manager
 
 ### Databases and Cache
+
 - PostgreSQL
 - MySQL
 - Redis
 - SQL Server
 
 ### Application Delivery
+
 - generic app template
 - environment-aware deployment scripts
 - migration hook
@@ -44,6 +48,7 @@ This repository is meant to be more than a random collection of Docker Compose f
 - CI/CD-ready layout
 
 ### Backup and Recovery
+
 - database backup scripts
 - backup verification helper
 - retention helper
@@ -52,6 +57,7 @@ This repository is meant to be more than a random collection of Docker Compose f
 - disaster recovery documentation
 
 ### Monitoring and Observability
+
 - Netdata template
 - Uptime Kuma template
 - Prometheus + Grafana starter template
@@ -60,6 +66,7 @@ This repository is meant to be more than a random collection of Docker Compose f
 - disk and container checks
 
 ### Security Hardening
+
 - SSH hardening templates
 - Fail2Ban jail template
 - security audit helper
@@ -68,6 +75,7 @@ This repository is meant to be more than a random collection of Docker Compose f
 - operator guidance for protecting internal tools
 
 ### Platform Layer
+
 - `vps-cli`
 - centralized config
 - plugin folders
@@ -158,6 +166,7 @@ It will update the operating system, install base system packages, install Docke
 You still have direct access to raw Docker Compose files, shell scripts, cron examples, and GitHub Actions workflows.
 
 You also get:
+
 - `vps-cli`
 - project registration helpers
 - service registration helpers
@@ -183,6 +192,7 @@ Example commands:
 ```
 
 Bootstrap also installs these convenience scripts under `/opt/vps/scripts/`:
+
 - `/opt/vps/scripts/vps-cli`
 - `/opt/vps/scripts/create-app.sh`
 - `/opt/vps/scripts/register-project.sh`
