@@ -1,14 +1,33 @@
 # Changelog
 
-## [7.2.0] - Full V7.2 Upgrade
+## [8.0.0] - Enterprise Automation Layer
 
 ### Added
-- Fully expanded README coverage across major folders
-- Richer `vps-cli` command set with safer operator defaults
-- Full helper script set for app creation and project and service registration
-- Improved platform registry structure in `config/platform.yml`
-- Stronger operator documentation across infrastructure, database, monitoring, security, and platform layers
-- Better plugin scaffolding notes for future extension
-- Improved bootstrap behavior for operator convenience
-- Service bootstrap helpers and config validation utilities
-- More complete examples for CI/CD, backup, monitoring, security, and platform reporting
+- secrets management helper layer
+- `.env` template generation helper
+- random secret generation helper
+- environment encryption placeholder guidance
+- Slack and Telegram alerting placeholders
+- alert test helper
+- service lifecycle helpers
+- project bootstrap helper
+- platform registry notes
+- V8 enterprise automation documentation
+- extended `vps-cli` command set
+
+### Improved
+- preserved all V1 through V7.2 capabilities
+- improved operator automation
+- improved readiness for multi-project production use
+- improved registry and helper workflow for teams
+
+### Preserved
+- bootstrap automation
+- database templates
+- Nginx Proxy Manager template
+- app template
+- CI/CD workflows
+- backup and recovery workflows
+- monitoring and observability
+- security hardening baseline
+- platformization layer

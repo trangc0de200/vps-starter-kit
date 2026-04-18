@@ -1,11 +1,11 @@
 # Operations Guide
 
-This document provides day-to-day operational guidance for the VPS Starter Kit platform.
+Use the shared scripts and platform helpers to operate the stack safely.
 
 ## Daily Routine
-- verify that critical containers are running
+- verify critical containers are running
 - confirm disk usage is healthy
-- verify that backups were created
+- verify backups were created
 - confirm important application health endpoints respond successfully
 
 ## Weekly Routine

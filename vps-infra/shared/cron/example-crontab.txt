@@ -6,9 +6,3 @@
 
 # Daily endpoint check at 08:00 (replace URLs)
 0 8 * * * /opt/vps/vps-infra/shared/scripts/check_endpoints.sh https://example.com/health https://api.example.com/health >> /opt/vps/logs/check_endpoints.log 2>&1
-
-# Weekly security audit at 04:00 on Sunday
-0 4 * * 0 /opt/vps/vps-infra/shared/scripts/audit_security.sh >> /opt/vps/logs/security_audit.log 2>&1
-
-# Weekly cleanup at 03:00 on Sunday
-0 3 * * 0 /opt/vps/vps-infra/shared/scripts/cleanup.sh >> /opt/vps/logs/cleanup.log 2>&1

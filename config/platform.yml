@@ -1,6 +1,6 @@
 platform:
   name: vps-starter-kit
-  version: 7.2.0
+  version: 8.0.0
   root: /opt/vps
   timezone: UTC
 
@@ -19,6 +19,7 @@ projects:
   - name: example-app
     path: /opt/vps/vps-app/my-app
     environment: production
+    alerts_enabled: false
 
 services:
   - name: nginx-proxy-manager
@@ -36,3 +37,12 @@ plugins:
   - minio
   - kafka
   - elasticsearch
+
+alerting:
+  slack_enabled: false
+  telegram_enabled: false
+  default_channel: ops
+
+secrets:
+  strategy: env_files
+  encryption: none

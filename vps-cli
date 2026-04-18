@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
 ROOT="${ROOT:-/opt/vps}"
 SCRIPT_ROOT="${ROOT}/vps-infra/shared/scripts"
 CONFIG_FILE="${PWD}/config/platform.yml"
+SECRETS_SCRIPT="${ROOT}/vps-secrets/scripts/generate_secret.sh"
+ALERT_TEST_SCRIPT="${ROOT}/vps-alerting/test_alert.sh"
+REGISTRY_REPORT_SCRIPT="${ROOT}/vps-platform/scripts/registry_report.sh"
 
 usage() {
   cat <<EOF
@@ -21,10 +25,14 @@ Commands:
   check-ssl <host1> [host2...]
   cleanup
   audit-security
+  generate-secret [length]
+  test-alert
+  registry-report
 EOF
 }
 
 cmd="${1:-}"
+
 case "${cmd}" in
   status) "${SCRIPT_ROOT}/platform_status.sh" ;;
   show-config) cat "${CONFIG_FILE}" ;;
@@ -38,6 +46,9 @@ case "${cmd}" in
   check-ssl) shift; "${SCRIPT_ROOT}/check_ssl_expiry.sh" "$@" ;;
   cleanup) "${SCRIPT_ROOT}/cleanup.sh" ;;
   audit-security) "${SCRIPT_ROOT}/audit_security.sh" ;;
+  generate-secret) shift; "${SECRETS_SCRIPT}" "${1:-32}" ;;
+  test-alert) "${ALERT_TEST_SCRIPT}" ;;
+  registry-report) "${REGISTRY_REPORT_SCRIPT}" ;;
   ""|-h|--help|help) usage ;;
   *) echo "Unknown command: ${cmd}"; usage; exit 1 ;;
 esac

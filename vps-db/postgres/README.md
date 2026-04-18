@@ -1,1 +1,9 @@
 # Postgres Template
+
+This folder contains the Postgres service template for the platform.
+
+## Included Files
+- `.env.example`
+- `docker-compose.yml`
+- backup script
+- restore notes placeholder

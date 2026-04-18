@@ -8,5 +8,5 @@ set -a
 source .env
 set +a
 mkdir -p "${BACKUP_DIR}"
-docker exec "${MYSQL_CONTAINER_NAME}" mysqldump -uroot -p"${MYSQL_ROOT_PASSWORD}" "${MYSQL_DATABASE}" | gzip > "${BACKUP_DIR}/${BACKUP_FILE_PREFIX}_${MYSQL_DATABASE}_${TIMESTAMP}.sql.gz"
+docker exec "${MYSQL_CONTAINER_NAME}" mysqldump -uroot -p"${MYSQL_ROOT_PASSWORD}" "${MYSQL_DATABASE}" | gzip > "${BACKUP_DIR}/${BACKUP_FILE_PREFIX}_${MYSQL_DATABASE}_${TIMESTAMP}.sql.gz" 
 find "${BACKUP_DIR}" -type f -mtime +"${BACKUP_RETENTION_DAYS}" -delete

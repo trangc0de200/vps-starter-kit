@@ -3,4 +3,4 @@
 Included monitoring templates:
 - Netdata
 - Uptime Kuma
-- Prometheus plus Grafana starter stack
+- Prometheus + Grafana starter stack
