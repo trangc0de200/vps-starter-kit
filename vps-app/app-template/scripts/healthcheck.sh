@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 TARGET_ENV="${1:-production}"
 
 if [ "${TARGET_ENV}" = "staging" ] && [ -f ../.env.staging ]; then

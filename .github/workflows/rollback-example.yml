@@ -1,19 +1,16 @@
 name: Rollback Example
-
 on:
   workflow_dispatch:
     inputs:
       target:
         description: "Commit hash or tag"
         required: true
-
 jobs:
   rollback:
     runs-on: ubuntu-latest
     concurrency:
       group: rollback-my-app
       cancel-in-progress: false
-
     steps:
       - name: Roll back via SSH
         uses: appleboy/ssh-action@v1.0.3

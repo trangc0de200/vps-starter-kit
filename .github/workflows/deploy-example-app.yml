@@ -1,10 +1,8 @@
 name: Deploy Example App
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     uses: ./.github/workflows/deploy-reusable.yml

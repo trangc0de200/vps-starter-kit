@@ -1,16 +1,18 @@
-# 🚀 VPS Starter Kit (V4 Complete - Production-Ready Docker DevOps Template)
+# 🚀 VPS Starter Kit (V5 Complete - Production-Ready Docker DevOps Template)
 
-This repository provides a **complete V4 upgrade** of the VPS Starter Kit for bootstrapping and operating a production-oriented Docker platform on **Ubuntu 24.04**.
+This repository provides a **complete V5 upgrade** of the VPS Starter Kit for bootstrapping and operating a production-oriented Docker platform on **Ubuntu 24.04**.
 
-This version keeps all previously available functionality and adds a **complete V4 backup and disaster recovery layer**, including:
+This version keeps all previously available functionality and adds a **complete V5 monitoring and observability layer**, including:
 
-- backup tiering guidance
-- backup verification helpers
-- restore workflow placeholders
-- restore test checklist
-- off-site sync placeholders
-- stronger retention and recovery documentation
-- operational backup orchestration improvements
+- Netdata template
+- Uptime Kuma template
+- Prometheus + Grafana starter template
+- shared monitoring helpers
+- endpoint and SSL check helpers
+- container and disk health checks
+- monitoring documentation
+- monitoring cron example
+- alert workflow placeholders
 
 It is designed for teams and individuals who want a practical self-hosted DevOps foundation for:
 
@@ -22,6 +24,7 @@ It is designed for teams and individuals who want a practical self-hosted DevOps
 - shared operational scripts
 - long-term maintainability
 - disaster recovery readiness
+- monitoring and observability
 
 ---
 
@@ -58,18 +61,18 @@ It is designed for teams and individuals who want a practical self-hosted DevOps
 - backup verification helper
 - retention helper
 - off-site sync placeholder
+- monitoring helpers
 - cron examples
-- operations, security, backup, and CI/CD documentation
+- operations, security, backup, CI/CD, disaster recovery, and monitoring documentation
 
-### V3 + V4 Platform Additions
-- reusable deployment workflow
-- staging workflow pattern
-- production workflow pattern
-- manual deployment workflow
-- rollback workflow
-- concurrency protection
-- environment-aware app template
-- backup and recovery readiness layer
+### Monitoring and Observability
+- Netdata stack template
+- Uptime Kuma stack template
+- Prometheus + Grafana starter template
+- endpoint check helper
+- SSL expiration check helper
+- container check helper
+- disk usage check helper
 
 ---
 
@@ -86,7 +89,8 @@ vps-starter-kit/
 │   ├── SECURITY.md
 │   ├── BACKUP_AND_RESTORE.md
 │   ├── CICD_V3.md
-│   └── DISASTER_RECOVERY.md
+│   ├── DISASTER_RECOVERY.md
+│   └── MONITORING.md
 ├── .github/
 │   └── workflows/
 │       ├── deploy-reusable.yml
@@ -95,7 +99,8 @@ vps-starter-kit/
 │       ├── deploy-production-example.yml
 │       ├── manual-deploy-example.yml
 │       ├── rollback-example.yml
-│       └── backup-report-example.yml
+│       ├── backup-report-example.yml
+│       └── monitoring-report-example.yml
 ├── vps-app/
 │   └── app-template/
 ├── vps-db/
@@ -103,13 +108,13 @@ vps-starter-kit/
 │   ├── mysql/
 │   ├── redis/
 │   └── sqlserver/
-└── vps-infra/
-    ├── nginx-proxy-manager/
-    └── shared/
-        ├── bin/
-        ├── cron/
-        ├── scripts/
-        └── templates/
+├── vps-infra/
+│   ├── nginx-proxy-manager/
+│   └── shared/
+└── vps-monitoring/
+    ├── netdata/
+    ├── uptime-kuma/
+    └── prometheus-grafana/
 ```
 
 ---
@@ -176,7 +181,8 @@ By default, the script creates:
 ├── scripts/
 ├── vps-app/
 ├── vps-db/
-└── vps-infra/
+├── vps-infra/
+└── vps-monitoring/
 ```
 
 ---
@@ -210,108 +216,34 @@ Each service is isolated in its own folder and includes:
 - `docker-compose.yml`
 - backup script
 - service-specific README
-
-### PostgreSQL
-
-```bash
-cd /opt/vps/vps-db/postgres
-cp .env.example .env
-nano .env
-docker compose up -d
-```
-
-### MySQL
-
-```bash
-cd /opt/vps/vps-db/mysql
-cp .env.example .env
-nano .env
-docker compose up -d
-```
-
-### Redis
-
-```bash
-cd /opt/vps/vps-db/redis
-cp .env.example .env
-cp redis.conf.example redis.conf
-nano .env
-nano redis.conf
-docker compose up -d
-```
-
-### SQL Server
-
-```bash
-cd /opt/vps/vps-db/sqlserver
-cp .env.example .env
-nano .env
-docker compose up -d
-```
+- restore notes placeholder
 
 ---
 
-## 🚀 Create a New Application
+## 🔁 CI/CD Highlights
 
-Create a new app from the template:
-
-```bash
-cp -r /opt/vps/vps-app/app-template /opt/vps/vps-app/my-app
-cd /opt/vps/vps-app/my-app
-cp .env.production.example .env.production
-cp .env.staging.example .env.staging
-cp docker-compose.yml.example docker-compose.yml
-nano .env.production
-```
-
-Then customize:
-
-- `docker-compose.yml`
-- `scripts/deploy.sh`
-- `scripts/migrate.sh`
-- `scripts/healthcheck.sh`
-- `scripts/rollback.sh`
-- `scripts/backup.sh` if your app owns state
-
----
-
-## 🔁 V3 CI/CD Highlights
-
-This version keeps the complete V3 deployment model:
-
-- staging and production workflow separation
-- reusable workflow with environment inputs
-- manual deployment support
-- rollback workflow
-- deploy concurrency control
-- environment-aware scripts
+This version keeps the complete V3 deployment model and the V4 recovery layer, then extends the operational platform with V5 monitoring documentation and examples.
 
 See:
-
-```text
-docs/CICD_V3.md
-```
+- `docs/CICD_V3.md`
+- `docs/BACKUP_AND_RESTORE.md`
+- `docs/DISASTER_RECOVERY.md`
+- `docs/MONITORING.md`
 
 ---
 
-## 💾 V4 Backup and Recovery Highlights
+## 📊 V5 Monitoring Highlights
 
-This version upgrades the backup and recovery layer with:
+This version adds:
 
-- shared backup verification helper
-- shared retention helper
-- shared off-site sync placeholder
-- restore test checklist
-- disaster recovery notes
-- backup report workflow example
-- extended cron examples for backup operations
-
-See:
-
-```text
-docs/BACKUP_AND_RESTORE.md
-docs/DISASTER_RECOVERY.md
-```
+- Netdata deployment template
+- Uptime Kuma deployment template
+- Prometheus + Grafana starter template
+- endpoint check helper
+- SSL expiration check helper
+- container check helper
+- disk usage check helper
+- monitoring report workflow example
 
 ---
 
@@ -329,14 +261,13 @@ Recommended baseline:
 - protect pgAdmin / Adminer / Portainer with NPM Access Lists
 
 See also:
-
 - `docs/SECURITY.md`
 
 ---
 
 ## ✅ Summary
 
-This V4 Complete release helps turn a fresh VPS into:
+This V5 Complete release helps turn a fresh VPS into:
 
 - a structured deployment platform
 - a reusable Docker hosting base
@@ -344,6 +275,7 @@ This V4 Complete release helps turn a fresh VPS into:
 - a cleaner DevOps foundation
 - a more complete CI/CD platform
 - a more complete backup and recovery platform
+- a more complete monitoring and observability platform
 
 ---
 
@@ -353,11 +285,11 @@ After bootstrap, the best next improvements are:
 
 - add real production and staging `.env` files
 - connect backup scripts to cron
-- test restore procedures in a staging environment
+- connect monitoring scripts to cron or alerting
 - configure Nginx Proxy Manager domains
 - add GitHub repository secrets
 - connect workflows to real app folders
-- add monitoring and alerting later
+- wire monitoring alerts to Slack or Telegram later
 
 ---
 

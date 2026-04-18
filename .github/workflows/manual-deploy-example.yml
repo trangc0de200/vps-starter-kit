@@ -1,5 +1,4 @@
 name: Manual Deploy Example
-
 on:
   workflow_dispatch:
     inputs:
@@ -11,7 +10,6 @@ on:
         description: "Target environment"
         required: true
         default: "production"
-
 jobs:
   deploy:
     uses: ./.github/workflows/deploy-reusable.yml

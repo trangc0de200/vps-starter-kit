@@ -1,11 +1,11 @@
-name: Backup Report Example
+name: Monitoring Report Example
 on:
   workflow_dispatch:
 jobs:
   report:
     runs-on: ubuntu-latest
     steps:
-      - name: Run remote backup verification
+      - name: Run remote monitoring checks
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -14,4 +14,5 @@ jobs:
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
             set -e
-            /opt/vps/vps-infra/shared/scripts/verify_backups.sh
+            /opt/vps/vps-infra/shared/scripts/check_containers.sh
+            /opt/vps/vps-infra/shared/scripts/check_disk_usage.sh

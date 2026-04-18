@@ -135,7 +135,7 @@ create_layout() {
   mkdir -p "${VPS_ROOT}/logs"
   mkdir -p "${VPS_ROOT}/scripts"
 
-  rsync -a --delete     --exclude ".git"     --exclude ".github"     "${REPO_DIR}/vps-app" "${REPO_DIR}/vps-db" "${REPO_DIR}/vps-infra" "${REPO_DIR}/docs" "${VPS_ROOT}/"
+  rsync -a --delete     --exclude ".git"     --exclude ".github"     "${REPO_DIR}/vps-app" "${REPO_DIR}/vps-db" "${REPO_DIR}/vps-infra" "${REPO_DIR}/vps-monitoring" "${REPO_DIR}/docs" "${VPS_ROOT}/"
 
   chown -R "${BOOTSTRAP_USER}:${BOOTSTRAP_USER}" "${VPS_ROOT}"
 }
@@ -202,21 +202,15 @@ Next steps:
 
   5. Change default NPM admin credentials immediately.
 
-  6. Start the DB/cache services you need:
-       cd ${VPS_ROOT}/vps-db/postgres && cp .env.example .env && nano .env && docker compose up -d
-       cd ${VPS_ROOT}/vps-db/mysql && cp .env.example .env && nano .env && docker compose up -d
-       cd ${VPS_ROOT}/vps-db/redis && cp .env.example .env && cp redis.conf.example redis.conf && nano .env && docker compose up -d
-       cd ${VPS_ROOT}/vps-db/sqlserver && cp .env.example .env && nano .env && docker compose up -d
-
-  7. Create a new app from template:
-       cp -r ${VPS_ROOT}/vps-app/app-template ${VPS_ROOT}/vps-app/my-app
-
+  6. Start the DB/cache services you need.
+  7. Start optional monitoring stacks if needed.
   8. Review:
        ${VPS_ROOT}/docs/OPERATIONS.md
        ${VPS_ROOT}/docs/SECURITY.md
        ${VPS_ROOT}/docs/BACKUP_AND_RESTORE.md
        ${VPS_ROOT}/docs/CICD_V3.md
        ${VPS_ROOT}/docs/DISASTER_RECOVERY.md
+       ${VPS_ROOT}/docs/MONITORING.md
 
 EOF
 }

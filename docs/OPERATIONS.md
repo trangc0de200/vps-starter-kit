@@ -32,24 +32,16 @@ docker network inspect db_network
 - check disk space
 - check running containers
 - review failed deployments if any
+- verify important app health endpoints
 
 ### Weekly
 - verify SSL certificates
 - inspect restart counts
-- test at least one health endpoint
 - prune unused Docker images carefully
+- review monitoring dashboards
 
 ### Monthly
 - test restore for one backup
 - review VPS resource usage
 - review outdated images
 - review SSH access and admin access
-
-## Critical Safety Rule
-Never run destructive commands casually on production, such as:
-
-```bash
-docker compose down -v
-```
-
-That may remove persistent volumes and destroy data.

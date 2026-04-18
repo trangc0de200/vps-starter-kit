@@ -53,7 +53,6 @@ jobs:
           script: |
             set -e
             cd ${{ inputs.app_dir }}
-
             git fetch origin
             git reset --hard origin/${{ inputs.branch }}
 

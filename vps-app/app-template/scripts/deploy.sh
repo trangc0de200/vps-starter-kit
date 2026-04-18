@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 TARGET_ENV="${1:-production}"
 TARGET_BRANCH="${2:-}"
-
 cd "${APP_DIR}"
 
 if [ "${TARGET_ENV}" = "staging" ]; then

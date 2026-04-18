@@ -4,5 +4,8 @@
 # Daily backup verification at 02:45
 45 2 * * * /opt/vps/vps-infra/shared/scripts/verify_backups.sh >> /opt/vps/logs/verify_backups.log 2>&1
 
+# Daily endpoint check at 08:00 (replace URLs)
+0 8 * * * /opt/vps/vps-infra/shared/scripts/check_endpoints.sh https://example.com/health https://api.example.com/health >> /opt/vps/logs/check_endpoints.log 2>&1
+
 # Weekly cleanup at 03:00 on Sunday
 0 3 * * 0 /opt/vps/vps-infra/shared/scripts/cleanup.sh >> /opt/vps/logs/cleanup.log 2>&1
