@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 ROOT="${ROOT:-/opt/vps}"
 SCRIPT_ROOT="${ROOT}/vps-infra/shared/scripts"
 CONFIG_FILE="${PWD}/config/platform.yml"
@@ -26,7 +25,6 @@ EOF
 }
 
 cmd="${1:-}"
-
 case "${cmd}" in
   status) "${SCRIPT_ROOT}/platform_status.sh" ;;
   show-config) cat "${CONFIG_FILE}" ;;

@@ -9,5 +9,4 @@ source .env
 set +a
 mkdir -p "${BACKUP_DIR}"
 docker exec "${POSTGRES_CONTAINER_NAME}" pg_dump -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" | gzip > "${BACKUP_DIR}/${BACKUP_FILE_PREFIX}_${POSTGRES_DB}_${TIMESTAMP}.sql.gz"
-
 find "${BACKUP_DIR}" -type f -mtime +"${BACKUP_RETENTION_DAYS}" -delete

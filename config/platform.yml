@@ -1,6 +1,6 @@
 platform:
   name: vps-starter-kit
-  version: 7.1.0
+  version: 7.2.0
   root: /opt/vps
   timezone: UTC
 

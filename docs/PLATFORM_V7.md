@@ -1,13 +1,11 @@
-# Platform V7 / V7.1 Guide
+# Platform V7 / V7.1 / V7.2 Guide
 
-This document explains the platformization layer introduced in V7 and polished in V7.1.
+The platform layer exists to make common operational tasks faster and more repeatable without hiding the real files underneath.
 
-## Main Additions
+Core elements:
 - `vps-cli`
-- centralized config
-- plugin-style service folders
-- multi-project conventions
-- service bootstrap helper
-- config validation helper
-- platform status helper
-- create/register helper scripts
+- `config/platform.yml`
+- helper scripts
+- plugin folders
+- project registration
+- service registration

@@ -1,3 +1,3 @@
 # Kafka Plugin Placeholder
 
-Use this folder to add a messaging platform template later.
+This plugin folder is reserved for a future Kafka-based messaging template.

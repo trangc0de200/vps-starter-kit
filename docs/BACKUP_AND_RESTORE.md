@@ -1,3 +1,5 @@
 # Backup and Restore Notes
 
-Keep daily backups, verify them, and test restores regularly.
+The platform includes backup templates for PostgreSQL, MySQL, Redis, and SQL Server.
+
+A backup is only useful if it exists, is recent enough, is readable, and can actually be restored.

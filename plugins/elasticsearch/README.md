@@ -1,3 +1,3 @@
 # Elasticsearch Plugin Placeholder
 
-Use this folder to add a search/analytics service template later.
+This plugin folder is reserved for a future Elasticsearch-based search or analytics stack.

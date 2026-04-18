@@ -1,3 +1,3 @@
 # MinIO Plugin Placeholder
 
-Use this folder to add an object storage service template later.
+This plugin folder is reserved for a future MinIO-based object storage template.

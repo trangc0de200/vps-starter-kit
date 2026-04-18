@@ -1,3 +1,6 @@
 # Monitoring and Observability Guide
 
-Use Netdata, Uptime Kuma, and optional Prometheus/Grafana.
+Included monitoring templates:
+- Netdata
+- Uptime Kuma
+- Prometheus plus Grafana starter stack
