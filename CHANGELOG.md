@@ -1,21 +1,29 @@
 # Changelog
 
-## [6.0.0] - Complete V6 Upgrade
+## [7.0.0] - Complete V7 Upgrade
 ### Added
-- Security hardening layer
-- SSH hardening templates
-- Fail2Ban configuration templates
-- Security audit helper scripts
-- Open ports review helper
-- UFW review helper
-- Docker security notes
-- Nginx Proxy Manager access protection notes
-- Security report workflow example
+- `vps-cli` platform wrapper
+- Centralized platform configuration
+- Plugin-style service extension folders
+- Multi-project conventions and docs
+- Shared platform helper scripts
+- Service bootstrap helper
+- Platform status helper
+- Config validation helper
+- Plugin registration concept
+- Platformization documentation
 
 ### Improved
-- Existing operational scripts retained and extended
-- Existing monitoring, backup, and CI/CD layers preserved
-- Security guidance integrated into the platform structure
+- Preserved all V1 through V6 capabilities
+- Added higher-level orchestration without removing lower-level control
+- Expanded structure for future growth
 
 ### Preserved
-- All functionality from V1, V2, V3, V4, and V5
+- Bootstrap automation
+- Database templates
+- Nginx Proxy Manager template
+- App template
+- CI/CD workflows
+- Backup and recovery workflows
+- Monitoring and observability
+- Security hardening baseline

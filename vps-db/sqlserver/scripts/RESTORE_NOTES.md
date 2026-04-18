@@ -1,1 +1,1 @@
-Restore placeholder: use RESTORE FILELISTONLY and RESTORE DATABASE with MOVE clauses.
+Restore placeholder notes for sqlserver.

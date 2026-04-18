@@ -1,3 +1,3 @@
 # Operations Guide
 
-Use the shared scripts and cron examples to operate the stack safely.
+Use the shared scripts and platform helpers to operate the stack safely.

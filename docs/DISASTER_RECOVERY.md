@@ -1,3 +1,3 @@
 # Disaster Recovery Notes
 
-Document restore steps and test them regularly.
+Document and test recovery procedures regularly.

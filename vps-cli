@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="${ROOT:-/opt/vps}"
+SCRIPT_ROOT="${ROOT}/vps-infra/shared/scripts"
+CONFIG_FILE="${PWD}/config/platform.yml"
+
+usage() {
+  cat <<EOF
+Usage: ./vps-cli <command>
+
+Commands:
+  status
+  show-config
+  list-services
+  backup-all
+  verify-backups
+  check-containers
+  check-disk
+  check-endpoints <url1> [url2...]
+  check-ssl <host1> [host2...]
+  cleanup
+  audit-security
+EOF
+}
+
+cmd="${1:-}"
+
+case "${cmd}" in
+  status)
+    "${SCRIPT_ROOT}/show_vps_info.sh"
+    ;;
+  show-config)
+    cat "${CONFIG_FILE}"
+    ;;
+  list-services)
+    "${SCRIPT_ROOT}/list_services.sh"
+    ;;
+  backup-all)
+    "${SCRIPT_ROOT}/backup_all.sh"
+    ;;
+  verify-backups)
+    "${SCRIPT_ROOT}/verify_backups.sh"
+    ;;
+  check-containers)
+    "${SCRIPT_ROOT}/check_containers.sh"
+    ;;
+  check-disk)
+    "${SCRIPT_ROOT}/check_disk_usage.sh"
+    ;;
+  check-endpoints)
+    shift
+    "${SCRIPT_ROOT}/check_endpoints.sh" "$@"
+    ;;
+  check-ssl)
+    shift
+    "${SCRIPT_ROOT}/check_ssl_expiry.sh" "$@"
+    ;;
+  cleanup)
+    "${SCRIPT_ROOT}/cleanup.sh"
+    ;;
+  audit-security)
+    "${SCRIPT_ROOT}/audit_security.sh"
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    echo "Unknown command: ${cmd}"
+    usage
+    exit 1
+    ;;
+esac

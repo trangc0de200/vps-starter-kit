@@ -5,8 +5,6 @@ save 900 1
 save 300 10
 save 60 10000
 appendonly yes
-appendfilename "appendonly.aof"
 dir /data
 dbfilename dump.rdb
 protected-mode yes
-loglevel notice

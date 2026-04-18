@@ -61,7 +61,9 @@ create_layout(){
   mkdir -p "${VPS_ROOT}"
   mkdir -p "${VPS_ROOT}/backups"/{postgres,mysql,redis,sqlserver,npm,daily,weekly,monthly}
   mkdir -p "${VPS_ROOT}/logs" "${VPS_ROOT}/scripts"
-  rsync -a --delete --exclude ".git" --exclude ".github"     "${REPO_DIR}/vps-app" "${REPO_DIR}/vps-db" "${REPO_DIR}/vps-infra" "${REPO_DIR}/vps-monitoring" "${REPO_DIR}/vps-security" "${REPO_DIR}/docs" "${VPS_ROOT}/"
+  rsync -a --delete --exclude ".git" --exclude ".github"     "${REPO_DIR}/vps-app" "${REPO_DIR}/vps-db" "${REPO_DIR}/vps-infra" "${REPO_DIR}/vps-monitoring" "${REPO_DIR}/vps-security" "${REPO_DIR}/plugins" "${REPO_DIR}/docs" "${REPO_DIR}/config" "${VPS_ROOT}/"
+  cp "${REPO_DIR}/vps-cli" "${VPS_ROOT}/scripts/vps-cli"
+  chmod +x "${VPS_ROOT}/scripts/vps-cli"
   chown -R "${BOOTSTRAP_USER}:${BOOTSTRAP_USER}" "${VPS_ROOT}"
 }
 

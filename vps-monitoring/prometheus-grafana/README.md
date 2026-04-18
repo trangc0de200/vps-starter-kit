@@ -1,1 +1,1 @@
-# Prometheus + Grafana Starter Template
+# Prometheus Grafana Template

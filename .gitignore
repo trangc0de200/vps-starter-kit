@@ -17,3 +17,4 @@ __pycache__/
 *.sql
 *.sql.gz
 *.bak
+.DS_Store
