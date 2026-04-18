@@ -161,109 +161,15 @@ maybe_disable_npm() {
 }
 
 create_shared_scripts() {
-  log "Creating shared helper scripts..."
-  mkdir -p "${VPS_ROOT}/vps-infra/shared/scripts"
-
-  cat > "${VPS_ROOT}/vps-infra/shared/scripts/backup_all.sh" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
-ROOT="/opt/vps"
-SCRIPTS=(
-  "${ROOT}/vps-db/postgres/scripts/backup_postgres.sh"
-  "${ROOT}/vps-db/mysql/scripts/backup_mysql.sh"
-  "${ROOT}/vps-db/redis/scripts/backup_redis.sh"
-  "${ROOT}/vps-db/sqlserver/scripts/backup_sqlserver.sh"
-)
-
-for script in "${SCRIPTS[@]}"; do
-  if [ -x "${script}" ]; then
-    echo "Running ${script}"
-    "${script}"
+  log "Ensuring shared helper scripts are executable..."
+  if [ -d "${VPS_ROOT}/vps-infra/shared/scripts" ]; then
+    find "${VPS_ROOT}/vps-infra/shared/scripts" -type f -name "*.sh" -exec chmod +x {} \;
   fi
-done
-EOF
-
-  cat > "${VPS_ROOT}/vps-infra/shared/scripts/healthcheck_all.sh" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
-echo "Docker containers:"
-docker ps
-
-echo
-echo "Disk usage:"
-df -h
-
-echo
-echo "Docker networks:"
-docker network ls
-EOF
-
-  cat > "${VPS_ROOT}/vps-infra/shared/scripts/cleanup.sh" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
-echo "Pruning dangling Docker images..."
-docker image prune -f
-
-echo "Pruning unused build cache..."
-docker builder prune -f
-
-echo "Done."
-EOF
-
-  cat > "${VPS_ROOT}/vps-infra/shared/scripts/show_vps_info.sh" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
-echo "Hostname:"
-hostname
-
-echo
-echo "Uptime:"
-uptime
-
-echo
-echo "Memory:"
-free -h
-
-echo
-echo "Disk:"
-df -h
-
-echo
-echo "Docker:"
-docker --version
-docker compose version
-EOF
-
-  cat > "${VPS_ROOT}/vps-infra/shared/scripts/list_services.sh" <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
-ROOT="/opt/vps"
-
-find "${ROOT}" -maxdepth 3 -name "docker-compose.yml" -o -name "docker-compose.yaml" | sort
-EOF
-
-  chmod +x "${VPS_ROOT}/vps-infra/shared/scripts/"*.sh
   chown -R "${BOOTSTRAP_USER}:${BOOTSTRAP_USER}" "${VPS_ROOT}/vps-infra/shared"
 }
 
 install_cron_examples() {
   [ "${INSTALL_CRON_EXAMPLES}" = "yes" ] || { log "Skipping cron examples."; return; }
-
-  mkdir -p "${VPS_ROOT}/vps-infra/shared/cron"
-
-  cat > "${VPS_ROOT}/vps-infra/shared/cron/example-crontab.txt" <<'EOF'
-# Daily database backups at 02:15
-15 2 * * * /opt/vps/vps-infra/shared/scripts/backup_all.sh >> /opt/vps/logs/backup_all.log 2>&1
-
-# Weekly cleanup at 03:00 on Sunday
-0 3 * * 0 /opt/vps/vps-infra/shared/scripts/cleanup.sh >> /opt/vps/logs/cleanup.log 2>&1
-EOF
-
   chown -R "${BOOTSTRAP_USER}:${BOOTSTRAP_USER}" "${VPS_ROOT}/vps-infra/shared/cron"
 }
 
@@ -309,6 +215,7 @@ Next steps:
        ${VPS_ROOT}/docs/OPERATIONS.md
        ${VPS_ROOT}/docs/SECURITY.md
        ${VPS_ROOT}/docs/BACKUP_AND_RESTORE.md
+       ${VPS_ROOT}/docs/CICD_V3.md
 
 EOF
 }

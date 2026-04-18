@@ -1,17 +1,24 @@
-name: Deploy Example App
+name: Manual Deploy Example
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Git branch to deploy"
+        required: true
+        default: "main"
+      target_env:
+        description: "Target environment"
+        required: true
+        default: "production"
 
 jobs:
   deploy:
     uses: ./.github/workflows/deploy-reusable.yml
     with:
       app_dir: /opt/vps/vps-app/my-app
-      branch: main
-      target_env: production
+      branch: ${{ inputs.branch }}
+      target_env: ${{ inputs.target_env }}
       run_backup: true
       run_migrate: true
       run_healthcheck: true

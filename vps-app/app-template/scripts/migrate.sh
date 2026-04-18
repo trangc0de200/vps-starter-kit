@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
-echo "Customize migrate.sh for your stack."
+TARGET_ENV="${1:-production}"
+echo "Customize migrate.sh for your stack and target environment: ${TARGET_ENV}"
 echo "Examples:"
 echo "  Laravel  -> docker compose exec -T app php artisan migrate --force"
 echo "  Django   -> docker compose exec -T app python manage.py migrate"

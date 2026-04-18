@@ -1,32 +1,33 @@
-# 🚀 VPS Starter Kit (Docker DevOps Template)
+# 🚀 VPS Starter Kit (V3 Complete - Production-Ready Docker DevOps Template)
 
-This repository is an **upgraded VPS starter kit** for bootstrapping a fresh **Ubuntu 24.04** server into a reusable, production-oriented Docker platform.
+This repository provides a **complete V3 upgrade** of the VPS Starter Kit for bootstrapping and operating a production-oriented Docker-based platform on **Ubuntu 24.04**.
 
-It is designed for teams and individuals who want a clean operational baseline for:
+This version keeps all previously available functionality and adds a **complete V3 CI/CD layer**, including:
+
+- production and staging deployment strategy
+- reusable GitHub Actions workflows
+- manual deployment triggers
+- rollback workflows
+- per-app deployment pattern
+- safer deployment scripts
+- deployment concurrency protection
+- stronger operational documentation
+
+It is designed for teams and individuals who want a practical self-hosted DevOps foundation for:
 
 - reverse proxy and HTTPS
 - databases and cache
 - application deployment
-- backup and restore workflows
+- backups and restore workflows
 - GitHub Actions CI/CD
 - shared operational scripts
 - long-term maintainability
-
-This version keeps the original starter-kit purpose intact while expanding it with:
-
-- stronger shared operational scripts
-- better bootstrap automation
-- richer documentation
-- more complete service templates
-- reusable CI/CD patterns
-- better day-to-day administration helpers
 
 ---
 
 ## ✨ What This Starter Kit Includes
 
 ### Core Infrastructure
-
 - Docker Engine
 - Docker Compose plugin
 - UFW firewall
@@ -36,28 +37,35 @@ This version keeps the original starter-kit purpose intact while expanding it wi
 - Nginx Proxy Manager
 
 ### Databases and Cache
-
 - PostgreSQL template
 - MySQL template
 - Redis template
 - SQL Server template
 
 ### Application Deployment
-
 - reusable app template
-- deploy, migrate, health check, rollback script skeletons
+- deploy, migrate, health check, backup, and rollback script skeletons
+- staging and production environment examples
 - CI/CD-ready folder layout
-- environment example files
 
 ### Shared Operations
-
 - shared backup orchestrator
 - shared health check runner
 - Docker cleanup helper
 - VPS info script
 - service listing helper
+- rollback helper
 - cron examples
-- operations documentation
+- operations, security, backup, and CI/CD documentation
+
+### V3 CI/CD Additions
+- reusable deployment workflow
+- staging workflow pattern
+- production workflow pattern
+- manual deployment workflow
+- rollback workflow
+- concurrency lock
+- environment-aware deploy script pattern
 
 ---
 
@@ -66,15 +74,22 @@ This version keeps the original starter-kit purpose intact while expanding it wi
 ```text
 vps-starter-kit/
 ├── install.sh
+├── VERSION
+├── CHANGELOG.md
 ├── README.md
 ├── docs/
 │   ├── OPERATIONS.md
 │   ├── SECURITY.md
-│   └── BACKUP_AND_RESTORE.md
+│   ├── BACKUP_AND_RESTORE.md
+│   └── CICD_V3.md
 ├── .github/
 │   └── workflows/
 │       ├── deploy-reusable.yml
-│       └── deploy-example-app.yml
+│       ├── deploy-example-app.yml
+│       ├── deploy-staging-example.yml
+│       ├── deploy-production-example.yml
+│       ├── manual-deploy-example.yml
+│       └── rollback-example.yml
 ├── vps-app/
 │   └── app-template/
 ├── vps-db/
@@ -158,30 +173,6 @@ By default, the script creates:
 └── vps-infra/
 ```
 
-A more detailed operational view:
-
-```text
-/opt/vps/
-├── backups/
-│   ├── postgres/
-│   ├── mysql/
-│   ├── redis/
-│   ├── sqlserver/
-│   └── npm/
-├── logs/
-├── scripts/
-├── vps-app/
-│   └── app-template/
-├── vps-db/
-│   ├── postgres/
-│   ├── mysql/
-│   ├── redis/
-│   └── sqlserver/
-└── vps-infra/
-    ├── nginx-proxy-manager/
-    └── shared/
-```
-
 ---
 
 ## 🌐 Reverse Proxy Layer
@@ -201,17 +192,7 @@ Default admin UI:
 http://YOUR_SERVER_IP:81
 ```
 
-### Important
-
 Change the default administrator credentials immediately after first login.
-
-Recommended responsibilities for Nginx Proxy Manager:
-
-- domain routing
-- SSL certificates with Let's Encrypt
-- Force SSL
-- Access Lists for admin tools
-- protection for dashboards and internal tools
 
 ---
 
@@ -221,7 +202,7 @@ Each service is isolated in its own folder and includes:
 
 - `.env.example`
 - `docker-compose.yml`
-- backup script template
+- backup script
 - service-specific README
 
 ### PostgreSQL
@@ -272,6 +253,7 @@ Create a new app from the template:
 cp -r /opt/vps/vps-app/app-template /opt/vps/vps-app/my-app
 cd /opt/vps/vps-app/my-app
 cp .env.production.example .env.production
+cp .env.staging.example .env.staging
 cp docker-compose.yml.example docker-compose.yml
 nano .env.production
 ```
@@ -279,46 +261,30 @@ nano .env.production
 Then customize:
 
 - `docker-compose.yml`
+- `scripts/deploy.sh`
 - `scripts/migrate.sh`
 - `scripts/healthcheck.sh`
 - `scripts/rollback.sh`
 - `scripts/backup.sh` if your app owns state
 
-This app template is intentionally generic so it can be adapted for:
-
-- Next.js
-- Nuxt.js
-- Vue
-- NestJS
-- Laravel
-- Django
-- FastAPI
-- Spring Boot
-- Go
-
 ---
 
-## 🔁 CI/CD with GitHub Actions
+## 🔁 V3 CI/CD Highlights
 
-This repository includes a reusable workflow:
+This version introduces a more complete deployment model:
+
+- staging and production workflow separation
+- reusable workflow with environment inputs
+- manual deployment support
+- rollback workflow
+- deploy concurrency control
+- environment-aware scripts
+
+See:
 
 ```text
-.github/workflows/deploy-reusable.yml
+docs/CICD_V3.md
 ```
-
-Deployment flow:
-
-```text
-git push → GitHub Actions → SSH → VPS → docker compose → migrate → healthcheck
-```
-
-The template supports:
-
-- reusable SSH deploy
-- migration hooks
-- health checks
-- optional pre-deploy backup
-- app-specific workflows calling the shared workflow
 
 ---
 
@@ -329,14 +295,6 @@ Recommended network usage:
 - public apps join `proxy_network`
 - databases and cache join `db_network`
 - apps needing database access join both networks if needed
-
-### Example
-
-- `nextjs-web` → `proxy_network`
-- `postgres` → `db_network`
-- `nestjs-api` → `proxy_network` + `db_network`
-
-This keeps public exposure under control and makes service discovery cleaner.
 
 ---
 
@@ -353,15 +311,6 @@ Recommended baseline:
 - avoid public DB access unless absolutely necessary
 - protect pgAdmin / Adminer / Portainer with NPM Access Lists
 
-Admin tools that should usually be protected:
-
-- pgAdmin
-- Adminer
-- Portainer
-- Netdata
-- Grafana
-- internal dashboards
-
 See also:
 
 - `docs/SECURITY.md`
@@ -369,8 +318,6 @@ See also:
 ---
 
 ## 💾 Backups
-
-This kit is backup-ready, and the shared scripts make backup orchestration easier.
 
 Backups are expected to live under:
 
@@ -400,35 +347,19 @@ See also:
 - `vps-db/*` → database and cache templates
 - `vps-app/app-template/*` → application deployment template
 - `.github/workflows/deploy-reusable.yml` → reusable CI/CD workflow
-- `docs/OPERATIONS.md` → day-to-day operational notes
-
----
-
-## 🧠 Design Philosophy
-
-This repository is **framework-agnostic**.
-
-It does not force a specific backend or frontend stack.
-
-Instead, it provides a **shared infrastructure foundation** so you can deploy many kinds of apps using the same conventions.
-
-That makes it useful for:
-
-- personal infrastructure
-- freelance / agency delivery
-- multi-project VPS hosting
-- internal company starter kits
+- `docs/CICD_V3.md` → v3 deployment documentation
 
 ---
 
 ## ✅ Summary
 
-This kit helps turn a fresh VPS into:
+This V3 Complete release helps turn a fresh VPS into:
 
 - a structured deployment platform
 - a reusable Docker hosting base
 - a safer production workflow
 - a cleaner DevOps foundation
+- a more complete CI/CD platform
 
 ---
 
@@ -436,12 +367,11 @@ This kit helps turn a fresh VPS into:
 
 After bootstrap, the best next improvements are:
 
-- add real production `.env` files
-- add cron jobs for DB backups
-- add real app-specific deploy scripts
+- add real production and staging `.env` files
+- add app-specific migration commands
 - configure Nginx Proxy Manager domains
 - add GitHub repository secrets
-- enable CI/CD per application
+- connect workflows to real app folders
 - add monitoring and alerting later
 
 ---

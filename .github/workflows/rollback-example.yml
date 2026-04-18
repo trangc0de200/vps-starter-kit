@@ -1,0 +1,27 @@
+name: Rollback Example
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Commit hash or tag"
+        required: true
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: rollback-my-app
+      cancel-in-progress: false
+
+    steps:
+      - name: Roll back via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            set -e
+            /opt/vps/vps-infra/shared/scripts/rollback_app.sh /opt/vps/vps-app/my-app "${{ inputs.target }}"

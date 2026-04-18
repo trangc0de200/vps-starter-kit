@@ -8,6 +8,7 @@
 *.zip
 .env
 .env.production
+.env.staging
 .env.local
 node_modules/
 .venv/

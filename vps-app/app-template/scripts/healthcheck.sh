@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ -f ../.env.production ]; then
+TARGET_ENV="${1:-production}"
+
+if [ "${TARGET_ENV}" = "staging" ] && [ -f ../.env.staging ]; then
+  set -a
+  source ../.env.staging
+  set +a
+elif [ -f ../.env.production ]; then
   set -a
   source ../.env.production
   set +a

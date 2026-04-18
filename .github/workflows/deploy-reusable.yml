@@ -9,6 +9,10 @@ on:
       branch:
         required: true
         type: string
+      target_env:
+        required: false
+        type: string
+        default: production
       run_backup:
         required: false
         type: boolean
@@ -34,6 +38,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-${{ inputs.app_dir }}-${{ inputs.target_env }}
+      cancel-in-progress: false
+
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -45,6 +53,7 @@ jobs:
           script: |
             set -e
             cd ${{ inputs.app_dir }}
+
             git fetch origin
             git reset --hard origin/${{ inputs.branch }}
 
@@ -57,10 +66,10 @@ jobs:
 
             if [ "${{ inputs.run_migrate }}" = "true" ] && [ -f ./scripts/migrate.sh ]; then
               chmod +x ./scripts/migrate.sh
-              ./scripts/migrate.sh
+              ./scripts/migrate.sh "${{ inputs.target_env }}"
             fi
 
             if [ "${{ inputs.run_healthcheck }}" = "true" ] && [ -f ./scripts/healthcheck.sh ]; then
               chmod +x ./scripts/healthcheck.sh
-              ./scripts/healthcheck.sh
+              ./scripts/healthcheck.sh "${{ inputs.target_env }}"
             fi
