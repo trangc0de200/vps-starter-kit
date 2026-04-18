@@ -1,6 +1,6 @@
 platform:
   name: vps-starter-kit
-  version: 7.0.0
+  version: 7.1.0
   root: /opt/vps
   timezone: UTC
 
@@ -19,6 +19,18 @@ projects:
   - name: example-app
     path: /opt/vps/vps-app/my-app
     environment: production
+
+services:
+  - name: nginx-proxy-manager
+    path: /opt/vps/vps-infra/nginx-proxy-manager
+  - name: postgres
+    path: /opt/vps/vps-db/postgres
+  - name: mysql
+    path: /opt/vps/vps-db/mysql
+  - name: redis
+    path: /opt/vps/vps-db/redis
+  - name: sqlserver
+    path: /opt/vps/vps-db/sqlserver
 
 plugins:
   - minio

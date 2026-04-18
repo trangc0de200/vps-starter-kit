@@ -1,6 +1,6 @@
-# Platform V7 Guide
+# Platform V7 / V7.1 Guide
 
-This document explains the platformization layer introduced in V7.
+This document explains the platformization layer introduced in V7 and polished in V7.1.
 
 ## Main Additions
 - `vps-cli`
@@ -10,9 +10,4 @@ This document explains the platformization layer introduced in V7.
 - service bootstrap helper
 - config validation helper
 - platform status helper
-
-## Recommended Use
-- keep low-level scripts for full control
-- use `vps-cli` for repeated operational tasks
-- use `config/platform.yml` as a human-readable source of platform defaults
-- extend the platform gradually with plugins and service presets
+- create/register helper scripts

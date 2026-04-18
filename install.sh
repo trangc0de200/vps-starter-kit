@@ -64,6 +64,10 @@ create_layout(){
   rsync -a --delete --exclude ".git" --exclude ".github"     "${REPO_DIR}/vps-app" "${REPO_DIR}/vps-db" "${REPO_DIR}/vps-infra" "${REPO_DIR}/vps-monitoring" "${REPO_DIR}/vps-security" "${REPO_DIR}/plugins" "${REPO_DIR}/docs" "${REPO_DIR}/config" "${VPS_ROOT}/"
   cp "${REPO_DIR}/vps-cli" "${VPS_ROOT}/scripts/vps-cli"
   chmod +x "${VPS_ROOT}/scripts/vps-cli"
+  cp "${VPS_ROOT}/vps-infra/shared/scripts/create_app.sh" "${VPS_ROOT}/scripts/create-app.sh"
+  cp "${VPS_ROOT}/vps-infra/shared/scripts/register_project.sh" "${VPS_ROOT}/scripts/register-project.sh"
+  cp "${VPS_ROOT}/vps-infra/shared/scripts/register_service.sh" "${VPS_ROOT}/scripts/register-service.sh"
+  chmod +x "${VPS_ROOT}/scripts/create-app.sh" "${VPS_ROOT}/scripts/register-project.sh" "${VPS_ROOT}/scripts/register-service.sh"
   chown -R "${BOOTSTRAP_USER}:${BOOTSTRAP_USER}" "${VPS_ROOT}"
 }
 

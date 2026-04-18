@@ -4,7 +4,7 @@ echo "=== Platform Version ==="
 cat ./VERSION 2>/dev/null || echo "Unknown"
 echo
 echo "=== Config ==="
-[ -f ./config/platform.yml ] && head -n 40 ./config/platform.yml || echo "No config found."
+[ -f ./config/platform.yml ] && head -n 80 ./config/platform.yml || echo "No config found."
 echo
 echo "=== Services ==="
 ROOT="${ROOT:-/opt/vps}"
