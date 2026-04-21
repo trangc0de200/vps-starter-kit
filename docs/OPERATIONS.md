@@ -1,20 +1,28 @@
 # Operations Guide
 
-Use the shared scripts and platform helpers to operate the stack safely.
+This document describes how to operate the VPS Starter Kit safely over time.
 
 ## Daily Routine
+
 - verify critical containers are running
-- confirm disk usage is healthy
-- verify backups were created
-- confirm important application health endpoints respond successfully
+- check disk usage
+- confirm backups were created
+- check key public endpoints
 
 ## Weekly Routine
+
 - review SSL certificate status
-- review restart counts for critical containers
-- prune unused Docker images carefully
-- review security audit output
+- inspect restart counts
+- review security audit results
+- inspect logs for recurring failures
 
 ## Monthly Routine
-- perform a test restore for one service
-- review exposed ports and firewall rules
-- verify monitoring dashboards still reflect reality
+
+- test restore for one service
+- review public exposure
+- review monitoring dashboards
+- review old images and container growth
+
+## Principle
+
+A platform is healthy only if it is reviewed regularly.

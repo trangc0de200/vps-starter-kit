@@ -1,12 +1,16 @@
 # Alerting Guide
 
-Included placeholders:
-- Slack webhook placeholder
-- Telegram bot placeholder
-- alert test helper
+This document explains the alerting placeholder layer.
 
-Recommended first alerts:
+## Included
+
+- Slack placeholder
+- Telegram placeholder
+- test alert script
+
+## Recommended First Alerts
+
 - endpoint down
 - disk usage pressure
-- backup verification failure
-- deployment healthcheck failure
+- backup failure
+- failed deployment healthcheck

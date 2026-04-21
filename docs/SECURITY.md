@@ -1,13 +1,20 @@
 # Security Guide
 
+This document provides the baseline security model used by the starter kit.
+
+## Public Port Philosophy
+
 Recommended baseline:
+
 - 22/tcp for SSH
 - 80/tcp for HTTP
 - 443/tcp for HTTPS
-- 81/tcp only if you intentionally expose Nginx Proxy Manager admin UI
+- 81/tcp only if you intentionally expose the Nginx Proxy Manager admin UI
 
-Important principles:
-- keep databases private
+## Rules
+
 - use SSH keys
-- disable password auth only after confirming access
-- protect monitoring and admin tools
+- avoid public database exposure
+- review UFW regularly
+- keep monitoring and admin dashboards protected
+- disable SSH password login only after key access is confirmed

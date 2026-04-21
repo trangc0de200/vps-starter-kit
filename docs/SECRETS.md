@@ -1,13 +1,15 @@
-# Secrets Management Guide
+# Secrets Guide
 
-Included helpers:
-- `generate_secret.sh`
-- `.env` template examples
-- environment management notes
-- encryption placeholder guidance
+This document explains the secrets handling baseline.
 
-Recommended practices:
+## Included Helpers
+
+- random secret generation helper
+- environment templates
+- future encryption notes
+
+## Practices
+
 - never commit real `.env` files
-- store production `.env` files only on the VPS
+- keep production secrets only on the server
 - rotate secrets deliberately
-- keep different environments separated
