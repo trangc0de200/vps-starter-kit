@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  wireguard:
+    image: linuxserver/wireguard:latest
+    container_name: wireguard
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
+      - SERVERURL=${WG_HOST}
+      - SERVERPORT=${WG_PORT:-51820}
+      - PEERS=${PEERS:-5}
+      - PEERDNS=${WG_DNS:-1.1.1.1}
+      - INTERNAL_SUBNET=${WG_NETWORK:-10.0.0}.0
+      - ALLOWEDIPS=${WG_ALLOWED:-0.0.0.0/0}
+      - PERSISTENT_KEEPALIVE=${WG_PERSISTENT_KEEPALIVE:-25}
+      - LOG_CONFS=true
+    volumes:
+      - ./config:/config
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - ${WG_PORT:-51820}:${WG_PORT:-51820}/udp
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.forwarding=1
+    healthcheck:
+      test: ["CMD", "wg", "show"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+networks:
+  default:
+    name: vpn_network
+    driver: bridge

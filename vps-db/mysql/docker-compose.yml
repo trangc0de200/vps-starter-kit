@@ -1,29 +1,115 @@
+version: '3.8'
+
 services:
   mysql:
-    image: mysql:${MYSQL_VERSION}
-    container_name: ${MYSQL_CONTAINER_NAME}
+    image: mysql:${MYSQL_VERSION:-8.0}
+    container_name: ${MYSQL_CONTAINER_NAME:-mysql}
     restart: unless-stopped
     env_file:
-      - .env
+      - path: .env
+        required: true
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      TZ: ${TZ}
-    command:
-      - --default-authentication-plugin=mysql_native_password
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-appdb}
+      MYSQL_USER: ${MYSQL_USER:-mysql}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --max_connections=${MYSQL_MAX_CONNECTIONS:-200}
+      --innodb-buffer-pool-size=${MYSQL_INNODB_BUFFER_POOL_SIZE:-256M}
+      --innodb-log-file-size=${MYSQL_INNODB_LOG_FILE_SIZE:-64M}
+      --innodb-flush-log-at-trx-commit=${MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT:-2}
+      --innodb-flush-method=${MYSQL_INNODB_FLUSH_METHOD:-O_DIRECT}
+      --innodb-io-capacity=${MYSQL_INNODB_IO_CAPACITY:-400}
+      --innodb-io-capacity-max=${MYSQL_INNODB_IO_CAPACITY_MAX:-2000}
+      --table-open-cache=${MYSQL_TABLE_OPEN_CACHE:-4000}
+      --table-definition-cache=${MYSQL_TABLE_DEFINITION_CACHE:-2000}
+      --slow-query-log=${MYSQL_SLOW_QUERY_LOG:-1}
+      --slow-query-log-file=/var/lib/mysql/mysql-slow.log
+      --long-query-time=${MYSQL_LONG_QUERY_TIME:-2}
+      --log-output=FILE
+      --character-set-server=${MYSQL_CHARACTER_SET_SERVER:-utf8mb4}
+      --collation-server=${MYSQL_COLLATION_SERVER:-utf8mb4_unicode_ci}
+      --require-secure-transport=${MYSQL_REQUIRE_SECURE_TRANSPORT:-ON}
+      --binlog-format=${MYSQL_BINLOG_FORMAT:-ROW}
+      --expire-logs-days=${MYSQL_EXPIRE_LOGS_DAYS:-7}
+      --max-connect-errors=1000000
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./backups:/backups
-    expose:
-      - "3306"
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+      - ./config/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}", "--silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    networks:
+      - db_network
+
+  mysql-exporter:
+    image: prom/mysqld-exporter:${MYSQL_EXPORTER_VERSION:-v0.15.0}
+    container_name: mysql-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "root:${MYSQL_ROOT_PASSWORD}@(mysql:3306)/"
+      MYSQLD_EXPORTER_TEXTFILE_PARSE: "true"
+    ports:
+      - "${MYSQL_EXPORTER_PORT:-9104}:9104"
+    volumes:
+      - ./config/queries.cnf:/etc/my.cnf.d/exporter.cnf:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O- http://localhost:9104/metrics | head -1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - db_network
+    profiles:
+      - monitoring
+
+  backup:
+    image: mysql:${MYSQL_VERSION:-8.0}
+    container_name: mysql-backup
+    restart: "no"
+    env_file:
+      - path: .env
+        required: true
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-appdb}
+    volumes:
+      - ./backups:/backups
+      - ./scripts:/scripts:ro
+    entrypoint: ["/bin/bash", "/scripts/backup.sh"]
+    profiles:
+      - backup
     networks:
       - db_network
 
 volumes:
   mysql_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${MYSQL_DATA_PATH:-./data}
 
 networks:
   db_network:
-    external: true
+    name: ${NETWORK_NAME:-db_network}
+    external: false

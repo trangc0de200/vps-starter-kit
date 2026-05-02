@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: vps-system
+
+bases:
+  - ../../base
+
+patchesStrategicMerge:
+  - patch-resources.yaml
+
+commonLabels:
+  environment: production
+  app.kubernetes.io/part-of: vps-starter-kit
+
+replicas:
+  - name: postgres
+    count: 3
+  - name: redis
+    count: 3

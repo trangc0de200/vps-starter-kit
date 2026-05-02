@@ -1,23 +1,109 @@
+version: '3.8'
+
 services:
   redis:
-    image: ${REDIS_IMAGE}
-    container_name: ${REDIS_CONTAINER_NAME}
+    image: redis:${REDIS_VERSION:-7.2-alpine}
+    container_name: ${REDIS_CONTAINER_NAME:-redis}
     restart: unless-stopped
     env_file:
-      - .env
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+      - path: .env
+        required: true
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      --maxmemory ${REDIS_MAXMEMORY:-256mb}
+      --maxmemory-policy ${REDIS_MAXMEMORY_POLICY:-allkeys-lru}
+      --databases ${REDIS_DATABASES:-16}
+      --tcp-backlog ${REDIS_TCP_BACKLOG:-511}
+      --tcp-keepalive ${REDIS_TCP_KEEPALIVE:-300}
+      --save ${REDIS_SAVE:-"900 1 300 10 60 10000"}
+      --rdbcompression ${REDIS_RDB_COMPRESSION:-yes}
+      --rdb-del-sync-files ${REDIS_RDB_DEL_SYNC_FILES:-yes}
+      --appendonly ${REDIS_APPENDONLY:-yes}
+      --appendfsync ${REDIS_APPENDFSYNC:-everysec}
+      --auto-aof-rewrite-percentage ${REDIS_AUTO_AOF_REWRITE_PERCENTAGE:-100}
+      --auto-aof-rewrite-min-size ${REDIS_AUTO_AOF_REWRITE_MIN_SIZE:-64mb}
+      --replica-read-only ${REDIS_REPLICA_READ_ONLY:-yes}
+      --loglevel ${REDIS_LOGLEVEL:-notice}
+      --protected-mode ${REDIS_PROTECTED_MODE:-yes}
+      --bind ${REDIS_BIND:-0.0.0.0}
+      --latency-monitor-threshold ${REDIS_LATENCY_MONITOR_THRESHOLD:-100}
+      --slowlog-log-slower-than ${REDIS_SLOWLOG_LOG_SLOWER_THAN:-10000}
+      --slowlog-max-len ${REDIS_SLOWLOG_MAX_LEN:-128}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
       - ./backups:/backups
-    expose:
-      - "6379"
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - db_network
+
+  redis-exporter:
+    image: oliver006/redis_exporter:${REDIS_EXPORTER_VERSION:-v1.55.0}
+    container_name: redis-exporter
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: "redis://redis:${REDIS_PORT:-6379}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_EXPORTER_CHECK_KEYS: ""
+      REDIS_EXPORTER_SCRIPT_CONFIG: ""
+      REDIS_EXPORTER_LOG_FORMAT: "txt"
+    ports:
+      - "${REDIS_EXPORTER_PORT:-9121}:9121"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O- http://localhost:9121/metrics | head -1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - db_network
+    profiles:
+      - monitoring
+
+  backup:
+    image: redis:${REDIS_VERSION:-7.2-alpine}
+    container_name: redis-backup
+    restart: "no"
+    env_file:
+      - path: .env
+        required: true
+    volumes:
+      - redis_data:/data
+      - ./backups:/backups
+      - ./scripts:/scripts:ro
+    entrypoint: ["/bin/bash", "/scripts/backup.sh"]
+    profiles:
+      - backup
     networks:
       - db_network
 
 volumes:
   redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${REDIS_DATA_PATH:-./data}
 
 networks:
   db_network:
-    external: true
+    name: ${NETWORK_NAME:-db_network}
+    external: false

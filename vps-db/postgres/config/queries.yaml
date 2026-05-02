@@ -1,0 +1,148 @@
+# Custom PostgreSQL queries for prometheuspostgres_exporter
+# https://github.com/prometheuscommunity/postgres_exporter
+
+pg_stat_database:
+  query: |
+    SELECT pg_database.datname,
+           pg_database_numbackends AS numbackends,
+           pg_database.xact_commit AS xact_commit,
+           pg_database.xact_rollback AS xact_rollback,
+           pg_database.blks_read,
+           pg_database.blks_hit,
+           pg_database.tup_returned,
+           pg_database.tup_fetched,
+           pg_database.tup_inserted,
+           pg_database.tup_updated,
+           pg_database.tup_deleted,
+           pg_database.conflicts AS conflicts,
+           pg_database.temp_files AS temp_files,
+           pg_database.temp_bytes AS temp_bytes,
+           pg_database.deadlocks AS deadlocks,
+           pg_database.blk_read_time AS blk_read_time,
+           pg_database.blk_write_time AS blk_write_time,
+           pg_database.stats_reset AS stats_reset
+    FROM pg_database
+    WHERE NOT datname IN ('template0', 'template1', 'postgres')
+  metrics:
+    - numbackends:
+        usage: "GAUGE"
+        description: "Number of backends"
+    - xact_commit:
+        usage: "COUNTER"
+        description: "Number of transactions"
+    - xact_rollback:
+        usage: "COUNTER"
+        description: "Number of rolled back transactions"
+    - blks_read:
+        usage: "COUNTER"
+        description: "Number of disk blocks read"
+    - blks_hit:
+        usage: "COUNTER"
+        description: "Number of buffer hits"
+    - tup_returned:
+        usage: "COUNTER"
+        description: "Number of rows returned"
+    - tup_fetched:
+        usage: "COUNTER"
+        description: "Number of rows fetched"
+    - tup_inserted:
+        usage: "COUNTER"
+        description: "Number of rows inserted"
+    - tup_updated:
+        usage: "COUNTER"
+        description: "Number of rows updated"
+    - tup_deleted:
+        usage: "COUNTER"
+        description: "Number of rows deleted"
+    - conflicts:
+        usage: "COUNTER"
+        description: "Number of queries canceled due to conflicts"
+    - temp_files:
+        usage: "COUNTER"
+        description: "Number of temporary files created"
+    - temp_bytes:
+        usage: "COUNTER"
+        description: "Total amount of data written to temporary files"
+    - deadlocks:
+        usage: "COUNTER"
+        description: "Number of deadlocks detected"
+    - blk_read_time:
+        usage: "COUNTER"
+        description: "Time spent reading data file blocks"
+    - blk_write_time:
+        usage: "COUNTER"
+        description: "Time spent writing data file blocks"
+
+pg_stat_bgwriter:
+  query: |
+    SELECT checkpoints_timed,
+           checkpoints_req,
+           checkpoint_write_time,
+           checkpoint_sync_time,
+           buffers_checkpoint,
+           buffers_clean,
+           maxwritten_clean,
+           buffers_backend,
+           buffers_backend_fsync,
+           buffers_alloc,
+           stats_reset
+    FROM pg_stat_bgwriter
+  metrics:
+    - checkpoints_timed:
+        usage: "COUNTER"
+        description: "Number of scheduled checkpoints"
+    - checkpoints_req:
+        usage: "COUNTER"
+        description: "Number of requested checkpoints"
+    - checkpoint_write_time:
+        usage: "COUNTER"
+        description: "Time spent writing checkpoints to disk"
+    - checkpoint_sync_time:
+        usage: "COUNTER"
+        description: "Time spent syncing checkpoints to disk"
+    - buffers_checkpoint:
+        usage: "COUNTER"
+        description: "Number of buffers written by checkpoints"
+    - buffers_clean:
+        usage: "COUNTER"
+        description: "Number of buffers written by the background writer"
+    - maxwritten_clean:
+        usage: "COUNTER"
+        description: "Number of times the background writer stopped cleaning"
+    - buffers_backend:
+        usage: "COUNTER"
+        description: "Number of buffers written directly by a backend"
+    - buffers_backend_fsync:
+        usage: "COUNTER"
+        description: "Number of times a backend was forced to fsync"
+    - buffers_alloc:
+        usage: "COUNTER"
+        description: "Number of buffers allocated"
+
+pg_stat_replication:
+  query: |
+    SELECT slot_name,
+           client_addr,
+           state,
+           sent_lsn,
+           write_lsn,
+           flush_lsn,
+           replay_lsn,
+           write_lag,
+           flush_lag,
+           replay_lag,
+           sync_state
+    FROM pg_stat_replication
+  metrics:
+    - sent_lsn:
+        usage: "GAUGE"
+        description: "Last transaction log position sent"
+    - write_lsn:
+        usage: "GAUGE"
+        description: "Last transaction log position written to disk"
+    - flush_lsn:
+        usage: "GAUGE"
+        description: "Last transaction log position flushed to disk"
+    - replay_lsn:
+        usage: "GAUGE"
+        description: "Last transaction log position replayed"

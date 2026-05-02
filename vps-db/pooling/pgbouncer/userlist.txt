@@ -1,0 +1,14 @@
+# PgBouncer User List
+# Format: "username" "password_hash"
+# Generate password hash with: echo -n "password" | md5sum
+
+# Admin user (can connect to admin console)
+"${PGBOUNCER_ADMIN_USER}" "${PGBOUNCER_ADMIN_PASSWORD}"
+
+# Stats user (read-only access)
+"${PGBOUNCER_STATS_USER}" "${PGBOUNCER_STATS_PASSWORD}"
+
+# Application users - add your app users here
+# Password hash format: md5(password + username)
+# Example: password "mypassword", user "myuser" -> md5sum of "mypasswordmyuser"
+"postgres" "md5$(echo -n 'changemepostgres' | md5sum | cut -d' ' -f1)"

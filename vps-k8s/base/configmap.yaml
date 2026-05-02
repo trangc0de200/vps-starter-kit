@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vps-config
+  namespace: vps-system
+data:
+  # Environment
+  TZ: "Asia/Ho_Chi_Minh"
+  LOG_LEVEL: "info"
+  
+  # Database defaults
+  DB_POOL_SIZE: "25"
+  DB_TIMEOUT: "30s"
+  DB_MAX_LIFETIME: "1h"
+  
+  # Application settings
+  APP_PORT: "8080"
+  APP_REPLICAS: "2"
+  APP_MAX_REPLICAS: "10"
+  APP_MIN_REPLICAS: "2"
+  
+  # Backup settings
+  BACKUP_SCHEDULE: "0 2 * * *"
+  BACKUP_RETENTION_DAYS: "30"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: databases
+data:
+  POSTGRES_VERSION: "16"
+  POSTGRES_MAX_CONNECTIONS: "100"
+  POSTGRES_SHARED_BUFFERS: "256MB"
+  POSTGRES_EFFECTIVE_CACHE_SIZE: "1GB"
+  POSTGRES_MAINTENANCE_WORK_MEM: "64MB"
+  POSTGRES_CHECKPOINT_COMPLETION_TARGET: "0.9"
+  POSTGRES_WAL_BUFFERS: "16MB"
+  POSTGRES_DEFAULT_STATISTICS_TARGET: "100"
+  POSTGRES_RANDOM_PAGE_COST: "1.1"
+  POSTGRES_EFFECTIVE_IO_CONCURRENCY: "200"
+  POSTGRES_WORK_MEM: "4MB"
+  POSTGRES_MIN_WAL_SIZE: "1GB"
+  POSTGRES_MAX_WAL_SIZE: "4GB"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  namespace: databases
+data:
+  MYSQL_VERSION: "8.0"
+  MYSQL_MAX_CONNECTIONS: "200"
+  MYSQL_INNODB_BUFFER_POOL_SIZE: "256M"
+  MYSQL_INNODB_LOG_FILE_SIZE: "64M"
+  MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: "2"
+  MYSQL_SLOW_QUERY_LOG: "1"
+  MYSQL_LONG_QUERY_TIME: "2"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: databases
+data:
+  REDIS_VERSION: "7.2"
+  REDIS_MAX_MEMORY: "256mb"
+  REDIS_MAXMEMORY_POLICY: "allkeys-lru"
+  REDIS_DATABASES: "16"
+  REDIS_TCP_BACKLOG: "511"
+  REDIS_TCP_KEEPALIVE: "300"

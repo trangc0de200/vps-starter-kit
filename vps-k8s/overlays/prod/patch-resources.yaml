@@ -1,0 +1,32 @@
+# Production patches
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vps-config
+  namespace: vps-system
+data:
+  APP_REPLICAS: "5"
+  APP_MAX_REPLICAS: "20"
+  APP_MIN_REPLICAS: "3"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: databases
+spec:
+  replicas: 3
+  template:
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - postgres
+                topologyKey: kubernetes.io/hostname

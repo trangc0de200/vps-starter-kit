@@ -1,0 +1,66 @@
+{
+  "attributes": {
+    "title": "VPS Overview Dashboard",
+    "description": "Overview of all VPS services",
+    "hits": 0,
+    "kibanaSavedObjectMeta": {
+      "searchSourceJSON": "{\"query\":{\"query\":\"\",\"language\":\"kuery\"},\"filter\":[]}"
+    },
+    "optionsJSON": {
+      "useMargins": true,
+      "syncColors": false,
+      "hidePanelTitles": false
+    },
+    "panelsJSON": [
+      {
+        "version": "8.0.0",
+        "type": "visualization",
+        "gridData": {
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 8,
+          "i": "1"
+        },
+        "panelIndex": "1",
+        "embeddableConfig": {},
+        "panelRefName": "panel_1"
+      },
+      {
+        "version": "8.0.0",
+        "type": "visualization",
+        "gridData": {
+          "x": 12,
+          "y": 0,
+          "w": 12,
+          "h": 8,
+          "i": "2"
+        },
+        "panelIndex": "2",
+        "embeddableConfig": {},
+        "panelRefName": "panel_2"
+      },
+      {
+        "version": "8.0.0",
+        "type": "search",
+        "gridData": {
+          "x": 0,
+          "y": 8,
+          "w": 24,
+          "h": 16,
+          "i": "3"
+        },
+        "panelIndex": "3",
+        "embeddableConfig": {},
+        "panelRefName": "panel_3"
+      }
+    ],
+    "timeRestore": true,
+    "timeTo": "now",
+    "timeFrom": "now-24h",
+    "refreshInterval": {
+      "value": 60000,
+      "pause": false
+    }
+  }
+}

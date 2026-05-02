@@ -1,13 +1,56 @@
+version: '3.8'
+
 services:
   netdata:
-    image: netdata/netdata:latest
+    image: netdata/netdata:${NETDATA_VERSION:-v1.45.0}
     container_name: netdata
     restart: unless-stopped
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
     ports:
-      - "19999:19999"
+      - "${NETDATA_PORT:-19999}:19999"
+    environment:
+      - NETDATA_CLAIM_TOKEN=${NETDATA_CLAIM_TOKEN:-}
+      - NETDATA_CLAIM_URL=${NETDATA_CLAIM_URL:-https://app.netdata.cloud}
+      - NETDATA_RESERVED_MEMORY=${NETDATA_RESERVED_MEMORY:-256}
+      - NETDATA_UPDATE_EVERY=${NETDATA_UPDATE_EVERY:-1}
+    volumes:
+      - netdata_lib:/var/lib/netdata
+      - netdata_cache:/var/cache/netdata
+      - netdata_log:/var/log/netdata
+      - /:/host/root:ro
+      - /sys:/host/sys:ro
+      - /proc:/host/proc:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:19999/netdata.conf"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     networks:
-      - proxy_network
+      - monitoring_network
+
+volumes:
+  netdata_lib:
+    driver: local
+  netdata_cache:
+    driver: local
+  netdata_log:
+    driver: local
 
 networks:
-  proxy_network:
+  monitoring_network:
+    name: ${NETWORK_NAME:-monitoring_network}
     external: true

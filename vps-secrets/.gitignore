@@ -1,0 +1,39 @@
+# vps-secrets
+secrets/
+*.txt
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.jks
+*.pfx
+*.enc
+*.gpg
+*.sops
+*.swp
+*.bak
+*~
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Keys
+keys/
+*.pem
+
+# Backups
+backups/
+
+# Audit logs
+audit.log
+
+# SOPS
+.sops.yaml
+*.sops
+
+# Temporary
+tmp/
+temp/

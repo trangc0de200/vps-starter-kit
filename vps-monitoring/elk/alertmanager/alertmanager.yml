@@ -1,0 +1,100 @@
+global:
+  resolve_timeout: 5m
+
+# Email configuration
+smtp:
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'alerts@example.com'
+  smtp_auth_username: 'alerts@example.com'
+  smtp_auth_password: 'password'
+
+# Slack configuration
+templates:
+  - '/etc/alertmanager/template.tmpl'
+
+route:
+  group_by: ['alertname', 'severity', 'instance']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'default'
+  
+  routes:
+    # Critical alerts to Slack + PagerDuty
+    - match:
+        severity: critical
+      receiver: 'slack-critical'
+      continue: true
+    
+    # Warning alerts to Slack
+    - match:
+        severity: warning
+      receiver: 'slack-warning'
+    
+    # Info alerts to email
+    - match:
+        severity: info
+      receiver: 'email'
+
+receivers:
+  # Default receiver
+  - name: 'default'
+    webhook_configs:
+      - url: 'http://localhost:5001/webhook'
+        send_resolved: true
+
+  # Slack for critical
+  - name: 'slack-critical'
+    slack_configs:
+      - channel: '#alerts-critical'
+        api_url: '${SLACK_WEBHOOK_URL}'
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}#FF0000{{ else }}#36A64F{{ end }}'
+        title: '🚨 {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Labels.alertname }}
+          *Severity:* {{ .Labels.severity }}
+          *Instance:* {{ .Labels.instance }}
+          {{ if .Annotations.summary }}
+          *Summary:* {{ .Annotations.summary }}
+          {{ end }}
+          {{ if .Annotations.description }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+          {{ end }}
+
+  # Slack for warnings
+  - name: 'slack-warning'
+    slack_configs:
+      - channel: '#alerts'
+        api_url: '${SLACK_WEBHOOK_URL}'
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}#FFA500{{ else }}#36A64F{{ end }}'
+        title: '⚠️ {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Labels.alertname }}
+          *Severity:* {{ .Labels.severity }}
+          *Instance:* {{ .Labels.instance }}
+          {{ if .Annotations.summary }}
+          *Summary:* {{ .Annotations.summary }}
+          {{ end }}
+          {{ end }}
+
+  # Email notifications
+  - name: 'email'
+    email_configs:
+      - to: '${ALERT_EMAIL}'
+        from: 'alerts@example.com'
+        send_resolved: true
+        headers:
+          subject: '{{ if eq .Status "firing" }}[ALERT]{{ else }}[RESOLVED]{{ end }} {{ .GroupLabels.alertname }}'
+
+inhibit_rules:
+  # Inhibit lower severity when critical is firing
+  - source_match:
+      severity: critical
+    target_match_re:
+      severity: 'warning|info'
+    equal: ['alertname', 'instance']

@@ -1,0 +1,17 @@
+# MySQL Exporter Configuration
+[client]
+user=root
+password=change_me_root_password
+port=3306
+host=mysql
+
+[mysql]
+# Collect status metrics
+collect.global_status = true
+collect.global_variables = true
+collect.info_schema.processlist = true
+collect.info_schema.innodb_metrics = true
+collect.info_schema.tables = true
+collect.info_schema.table_io_waits_summary_table_index_service = true
+collect.perf_schema.tableiowaits = true
+collect.perf_schema.indexiowaits = true

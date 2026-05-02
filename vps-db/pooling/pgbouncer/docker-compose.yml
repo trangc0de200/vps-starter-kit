@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  pgbouncer:
+    image: edoburu/pgbouncer:${PGBOUNCER_VERSION:-latest}
+    container_name: pgbouncer
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - POOL_MODE=${PGBOUNCER_POOL_MODE:-transaction}
+      - MAX_CLIENT_CONN=${PGBOUNCER_MAX_CLIENT_CONN:-1000}
+      - DEFAULT_POOL_SIZE=${PGBOUNCER_DEFAULT_POOL_SIZE:-25}
+      - MIN_POOL_SIZE=${PGBOUNCER_MIN_POOL_SIZE:-5}
+      - RESERVE_POOL_SIZE=${PGBOUNCER_RESERVE_POOL_SIZE:-5}
+      - RESERVE_POOL_TIMEOUT=${PGBOUNCER_RESERVE_POOL_TIMEOUT:-5}
+      - MAX_DB_CONNECTIONS=${PGBOUNCER_MAX_DB_CONNECTIONS:-100}
+      - SERVER_LIFETIME=${PGBOUNCER_SERVER_LIFETIME:-3600}
+      - SERVER_IDLE_TIMEOUT=${PGBOUNCER_IDLE_TIMEOUT:-600}
+      - LOG_CONNECTIONS=${PGBOUNCER_LOG_CONNECTIONS:-1}
+      - LOG_DISCONNECTIONS=${PGBOUNCER_LOG_DISCONNECTIONS:-1}
+      - LOG_ERRORS=${PGBOUNCER_LOG_ERRORS:-1}
+      - QUERY_TIMEOUT=${PGBOUNCER_QUERY_TIMEOUT:-300}
+      - CLIENT_LOGIN_TIMEOUT=${PGBOUNCER_CLIENT_LOGIN_TIMEOUT:-60}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    networks:
+      - db_network
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'SHOW STATS;' | nc -w 1 localhost 5432 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-16-alpine}
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - db_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  db_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

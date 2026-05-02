@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  backup-scheduler:
+    image: alpine:3.19
+    container_name: backup-scheduler
+    restart: unless-stopped
+    environment:
+      - BACKUP_PROVIDER=${BACKUP_PROVIDER:-s3}
+    volumes:
+      - ./backup.sh:/usr/local/bin/backup.sh:ro
+      - ./restore.sh:/usr/local/bin/restore.sh:ro
+      - ./configs:/configs:ro
+      - ./logs:/logs
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - postgres_data:/var/lib/postgresql/data:ro
+      - mysql_data:/var/lib/mysql:ro
+    volumes_from:
+      - postgres:ro
+      - mysql:ro
+    env_file:
+      - .env
+    command: >
+      sh -c "
+        echo '0 * * * * /usr/local/bin/backup.sh run --hourly >> /logs/backup.log 2>&1' | crontab - &&
+        echo '0 0 * * * /usr/local/bin/backup.sh run --daily >> /logs/backup.log 2>&1' | crontab - &&
+        echo '0 0 * * 0 /usr/local/bin/backup.sh run --weekly >> /logs/backup.log 2>&1' | crontab - &&
+        echo '0 0 1 * * /usr/local/bin/backup.sh run --monthly >> /logs/backup.log 2>&1' | crontab - &&
+        crond -f -l 2
+      "
+    networks:
+      - backup_network
+
+  backup-s3:
+    image: amazon/aws-cli:latest
+    container_name: backup-s3
+    restart: unless-stopped
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+    volumes:
+      - ./scripts/s3-sync.sh:/usr/local/bin/s3-sync.sh:ro
+      - backup_data:/data:ro
+    env_file:
+      - .env
+    networks:
+      - backup_network
+    profiles:
+      - s3
+
+  restic:
+    image: restic/restic:latest
+    container_name: backup-restic
+    restart: unless-stopped
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - B2_ACCOUNT_ID=${B2_ACCOUNT_ID}
+      - B2_APPLICATION_KEY=${B2_APPLICATION_KEY}
+      - RESTIC_PASSWORD=${ENCRYPTION_PASSWORD}
+    volumes:
+      - ./scripts/restic-backup.sh:/usr/local/bin/restic-backup.sh:ro
+      - ./scripts/restic-restore.sh:/usr/local/bin/restic-restore.sh:ro
+      - backup_data:/data:ro
+      - /etc:/config:ro
+      - /home:/home:ro
+      - /var/www:/var/www:ro
+      - /opt:/opt:ro
+    env_file:
+      - .env
+    networks:
+      - backup_network
+
+networks:
+  backup_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  mysql_data:
+    driver: local
+  backup_data:
+    driver: local

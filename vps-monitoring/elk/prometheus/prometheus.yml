@@ -1,0 +1,79 @@
+# Prometheus Configuration for ELK Stack
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'vps-starter-kit'
+    environment: 'production'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+rule_files:
+  - /etc/prometheus/alert.rules
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter (system metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['host.docker.internal:9100']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: '([^:]+):\d+'
+        replacement: '${1}'
+
+  # Docker metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # Elasticsearch metrics
+  - job_name: 'elasticsearch'
+    static_configs:
+      - targets: ['elasticsearch:9200']
+    metrics_path: /_prometheus/metrics
+    basic_auth:
+      username: elastic
+      password: changeme
+
+  # Fluentd metrics
+  - job_name: 'fluentd'
+    static_configs:
+      - targets: ['fluentd:24231']
+
+  # Nginx metrics (via nginx-exporter)
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+
+  # Application metrics
+  - job_name: 'app'
+    static_configs:
+      - targets: ['app:3000']
+    metrics_path: /metrics
+
+  # SSL certificate checks
+  - job_name: 'ssl'
+    metrics_path: /probe
+    params:
+      module: [https]
+    static_configs:
+      - targets:
+        - https://your-domain.com
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: prometheus-blackbox-exporter:9115

@@ -1,0 +1,29 @@
+# vps-app
+app-template/.env
+app-template/.env.*
+!app-template/.env.production.example
+!app-template/.env.staging.example
+
+# Backups
+backups/
+*.tar.gz
+*.sql
+
+# Data
+data/
+logs/
+
+# Environment
+.env
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Keys
+*.pem
+*.key
+*.crt

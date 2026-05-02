@@ -1,19 +1,83 @@
+version: '3.8'
+
 services:
-  npm:
-    image: jc21/nginx-proxy-manager:latest
+  # ===========================================
+  # Nginx Proxy Manager
+  # ===========================================
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:${NPM_VERSION:-2.11.3}
     container_name: nginx-proxy-manager
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "81:81"
-      - "443:443"
+      - "${NPM_HTTP_PORT:-80}:80"
+      - "${NPM_HTTPS_PORT:-443}:443"
+      - "${NPM_ADMIN_PORT:-81}:81"
+    environment:
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+      DB_MYSQL_HOST: ${MYSQL_HOST:-db}
+      DB_MYSQL_PORT: ${MYSQL_PORT:-3306}
+      DB_MYSQL_DATABASE: ${MYSQL_DATABASE:-npm}
+      DB_MYSQL_USER: ${MYSQL_USER:-npm}
+      DB_MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
     volumes:
       - ./data:/data
       - ./letsencrypt:/etc/letsencrypt
       - ./backups:/backups
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    healthcheck:
+      test: ["CMD", "/bin/check-health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
-      - proxy_network
+      - npm_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
 
+  # ===========================================
+  # Database (MariaDB)
+  # ===========================================
+  db:
+    image: jc21/mariadb:${MARIADB_VERSION:-latest}
+    container_name: npm-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD is required}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-npm}
+      MYSQL_USER: ${MYSQL_USER:-npm}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - npm_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+# ===========================================
+# Networks
+# ===========================================
 networks:
-  proxy_network:
-    external: true
+  npm_network:
+    name: ${NETWORK_NAME:-npm_network}
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${NETWORK_SUBNET:-172.20.0.0/16}

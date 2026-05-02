@@ -1,0 +1,92 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'vps'
+    env: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - 'alert.rules'
+
+# Scrape configurations
+scrape_configs:
+  # ===========================================
+  # Prometheus Self-monitoring
+  # ===========================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: /metrics
+    scheme: http
+
+  # ===========================================
+  # Prometheus
+  # ===========================================
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    metrics_path: /metrics
+    scheme: http
+
+  # ===========================================
+  # cAdvisor (Docker)
+  # ===========================================
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    metrics_path: /metrics
+    scheme: http
+
+  # ===========================================
+  # PostgreSQL (if running)
+  # ===========================================
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    metrics_path: /metrics
+    scheme: http
+
+  # ===========================================
+  # MySQL (if running)
+  # ===========================================
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+    metrics_path: /metrics
+    scheme: http
+
+  # ===========================================
+  # Redis (if running)
+  # ===========================================
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    metrics_path: /metrics
+    scheme: http
+
+  # ===========================================
+  # Nginx Proxy Manager (if running)
+  # ===========================================
+  - job_name: 'nginx-proxy-manager'
+    static_configs:
+      - targets: ['nginx-proxy-manager:9100']
+    metrics_path: /metrics
+    scheme: http
+
+  # ===========================================
+  # Custom Applications
+  # ===========================================
+  # Uncomment and configure for your apps
+  # - job_name: 'your-app'
+  #   static_configs:
+  #     - targets: ['your-app:8080']
+  #   metrics_path: /metrics
+  #   scheme: http

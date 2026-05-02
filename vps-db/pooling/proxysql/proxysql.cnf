@@ -1,0 +1,148 @@
+# ProxySQL Configuration File
+# This file is read at startup
+
+databases = (
+    {
+        address = "${MYSQL_HOST}"
+        port = ${MYSQL_PORT}
+        default_schema = "information_schema"
+        schema = "appdb"
+        username = "${MYSQL_USER}"
+        password = "${MYSQL_PASSWORD}"
+        max_connections = ${PROXYSQL_MAX_CONNECTIONS}
+        compression = 0
+    }
+)
+
+# MySQL Users
+mysql_users = (
+    {
+        username = "${MYSQL_USER}"
+        password = "${MYSQL_PASSWORD}"
+        default_hostgroup = 0
+        active = 1
+    },
+    {
+        username = "monitor"
+        password = "monitor_secret"
+        default_hostgroup = 0
+        active = 1
+    }
+)
+
+# Admin Interface
+admin_variables =
+{
+    admin_credentials = "${PROXYSQL_ADMIN_USER}:${PROXYSQL_ADMIN_PASSWORD}"
+    mysql_ifaces = "0.0.0.0:6032"
+    refresh_interval = 2000
+    debug = false
+}
+
+# MySQL Variables
+mysql_variables =
+{
+    max_connections = ${PROXYSQL_MAX_CONNECTIONS}
+    default_query_delay = 0
+    default_schema = "information_schema"
+    thread_stack = 131072
+    max_select_statement = 10000
+    max_transaction_id = 1000000
+    multitester_threads = 16
+    auto_increment_delay_multiplex = 5
+    verbose_query_locking = "false"
+
+    # Connection pool
+    default_pool_size = ${PROXYSQL_DEFAULT_POOL_SIZE}
+    min_pool_size = ${PROXYSQL_MIN_POOL_SIZE}
+    max_pool_size = ${PROXYSQL_MAX_POOL_SIZE}
+    pool_resets_on_connection_close = "on"
+
+    # Timeouts (milliseconds)
+    connect_timeout_server = ${PROXYSQL_CONNECT_TIMEOUT}
+    ping_timeout_server = ${PROXYSQL_PING_TIMEOUT}
+    server_connect_timeout = ${PROXYSQL_SERVER_CONNECT_TIMEOUT}
+    server_response_timeout = ${PROXYSQL_SERVER_RESP_TIMEOUT}
+
+    # Free pool
+    free_pool_size = ${PROXYSQL_FREE_POOL_SIZE}
+
+    # Query processing
+    query_processor_iterations = 0
+    query_processor_preprocessor = ""
+    query_digests_max_digest_length = 16384
+    query_digests_max_query_length = 65000
+
+    # Throttling
+    max_query_time = ${PROXYSQL_MAX_QUERY_TIME}
+    throttle_threshold = ${PROXYSQL_THROTTLE_THRESHOLD}
+
+    # Query cache
+    query_cache_size = ${PROXYSQL_QUERY_CACHE_SIZE}
+    query_cache_type = 1
+    query_cache_stores_result_compressed = "true"
+
+    # Failover
+    connect_retries_on_failure = 10
+    connect_retry_interval = 120
+
+    # Monitor
+    monitor_connect_interval = 20000
+    monitor_ping_interval = 10000
+    monitor_read_only_timeout = 5000
+    ping_timeout_server = 200
+    monitor_username = "${PROXYSQL_MONITOR_USER}"
+    monitor_password = "${PROXYSQL_MONITOR_PASSWORD}"
+
+    # Galera
+    monitor_group_interval = 10000
+}
+
+# Server definitions
+mysql_servers = (
+    {
+        address = "${MYSQL_HOST}"
+        port = ${MYSQL_PORT}
+        status = "ONLINE"
+        weight = 1
+        compression = 0
+        max_connections = 1000
+        max_replication_lag = 10
+        use_ssl = 0
+        max_latency_ping = 1000
+    }
+)
+
+# Query rules
+mysql_query_rules = (
+    {
+        rule_id = 1
+        active = 1
+        match_pattern = "^SELECT.*FOR UPDATE"
+        destination_hostgroup = 0
+        apply = 1
+        log = 1
+    },
+    {
+        rule_id = 2
+        active = 1
+        match_pattern = "^SELECT"
+        destination_hostgroup = 0
+        apply = 1
+        log = 1
+    },
+    {
+        rule_id = 3
+        active = 1
+        match_pattern = "^INSERT|^UPDATE|^DELETE|^REPLACE"
+        destination_hostgroup = 0
+        apply = 1
+        log = 1
+    }
+)
+
+# Listen interface
+listen_addr = "0.0.0.0"
+listen_port = 6033
+mysql_ifaces = "0.0.0.0:6033"
+http_ifaces = "0.0.0.0:6070"

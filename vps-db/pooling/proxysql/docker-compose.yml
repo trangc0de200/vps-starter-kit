@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  proxysql:
+    image: proxysql/proxysql:${PROXYSQL_VERSION:-2.6.3}
+    container_name: proxysql
+    restart: unless-stopped
+    ports:
+      - "6032:6032"  # Admin interface
+      - "6033:6033"  # MySQL client connections
+      - "6070:6070"  # Stats HTTP
+    environment:
+      - PROXYSQL_ADMIN_USER=${PROXYSQL_ADMIN_USER}
+      - PROXYSQL_ADMIN_PASSWORD=${PROXYSQL_ADMIN_PASSWORD}
+      - PROXYSQL_MONITOR_USER=${PROXYSQL_MONITOR_USER}
+      - PROXYSQL_MONITOR_PASSWORD=${PROXYSQL_MONITOR_PASSWORD}
+    volumes:
+      - ./proxysql.cnf:/etc/proxysql.cnf:ro
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - proxysql_data:/var/lib/proxysql
+    networks:
+      - db_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "admin", "-padmin", "--silent"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  mysql:
+    image: mysql:${MYSQL_VERSION:-8.0}
+    container_name: mysql
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=appdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql.cnf:/etc/mysql/conf.d/custom.cnf:ro
+    networks:
+      - db_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  db_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+  proxysql_data:
+    driver: local

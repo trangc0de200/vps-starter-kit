@@ -1,0 +1,17 @@
+# Backup files
+backups/
+*.bak
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Data directories
+data/
+
+# ELK Stack data
+elasticsearch_data/
+prometheus_data/
+alertmanager_data/
+fluentd/buffer/

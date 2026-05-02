@@ -18,3 +18,8 @@ __pycache__/
 *.sql.gz
 *.bak
 .DS_Store
+
+# WAF SSL certificates (should be generated per-deployment)
+vps-security/waf/ssl/*.pem
+vps-security/waf/ssl/*.key
+vps-security/waf/logs/

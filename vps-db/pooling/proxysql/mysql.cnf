@@ -1,0 +1,31 @@
+[mysqld]
+# Character set
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
+
+# InnoDB settings
+innodb_buffer_pool_size=256M
+innodb_log_file_size=64M
+innodb_flush_log_at_trx_commit=2
+innodb_flush_method=O_DIRECT
+
+# Connection settings
+max_connections=200
+max_connect_errors=100
+
+# Query cache (MySQL 8 removed this, but included for reference)
+# query_cache_size=0
+# query_cache_type=0
+
+# Slow query log
+slow_query_log=1
+slow_query_log_file=/var/log/mysql/slow.log
+long_query_time=2
+
+# Binary logging
+log-bin=mysql-bin
+binlog_format=ROW
+expire_logs_days=7
+
+# Performance schema
+performance_schema=ON

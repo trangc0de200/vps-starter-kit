@@ -1,0 +1,202 @@
+# Alert Rules for Prometheus/Alertmanager
+# Define alert conditions and severity levels
+
+groups:
+  - name: container_alerts
+    interval: 30s
+    rules:
+      - alert: ContainerDown
+        expr: up{job="docker"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: docker
+        annotations:
+          summary: "Container {{ $labels.container_name }} is down"
+          description: "Container {{ $labels.container_name }} on {{ $labels.instance }} has been down for more than 1 minute"
+          runbook_url: "https://docs.example.com/runbooks/container-down"
+
+      - alert: HighContainerRestartRate
+        expr: rate(container_restart_count[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: docker
+        annotations:
+          summary: "Container {{ $labels.container_name }} restarting frequently"
+          description: "Container {{ $labels.container_name }} has restarted {{ $value | printf \"%.2f\" }} times per second in the last 5 minutes"
+
+      - alert: HighContainerMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: docker
+        annotations:
+          summary: "Container {{ $labels.container_name }} memory usage high"
+          description: "Container {{ $labels.container_name }} memory usage is at {{ $value | humanizePercentage }} of limit"
+
+  - name: system_alerts
+    interval: 30s
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is at {{ $value | printf \"%.2f\" }}% for more than 5 minutes"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is at {{ $value | printf \"%.2f\" }}%"
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs"} / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}:{{ $labels.mountpoint }}"
+          description: "Disk space is at {{ $value | humanizePercentage }}"
+
+      - alert: DiskSpaceCritical
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs"} / node_filesystem_size_bytes) < 0.05
+        for: 1m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Critical disk space on {{ $labels.instance }}:{{ $labels.mountpoint }}"
+          description: "Disk space is at {{ $value | humanizePercentage }} - Immediate action required!"
+
+      - alert: NodeDown
+        expr: up{job="node"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Node {{ $labels.instance }} is down"
+          description: "Node exporter on {{ $labels.instance }} is not reachable"
+
+  - name: nginx_alerts
+    interval: 30s
+    rules:
+      - alert: NginxHighErrorRate
+        expr: rate(nginx_http_requests_total{status=~"5.."}[5m]) / rate(nginx_http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: nginx
+        annotations:
+          summary: "High Nginx error rate on {{ $labels.instance }}"
+          description: "Nginx 5xx error rate is at {{ $value | humanizePercentage }}"
+
+      - alert: NginxHighLatency
+        expr: histogram_quantile(0.95, rate(nginx_http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: nginx
+        annotations:
+          summary: "High Nginx latency on {{ $labels.instance }}"
+          description: "95th percentile latency is {{ $value | printf \"%.2f\" }}s"
+
+      - alert: NginxDown
+        expr: nginx_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: nginx
+        annotations:
+          summary: "Nginx is down on {{ $labels.instance }}"
+          description: "Nginx is not reachable"
+
+  - name: database_alerts
+    interval: 30s
+    rules:
+      - alert: DatabaseDown
+        expr: up{job=~"postgres|mysql|redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "Database {{ $labels.job }} is down"
+          description: "Database {{ $labels.job }} on {{ $labels.instance }} is not reachable"
+
+      - alert: DatabaseHighConnections
+        expr: (pg_stat_activity_count / pg_settings_max_connections) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "PostgreSQL high connection count"
+          description: "Database connections at {{ $value | printf \"%.2f\" }}% of max"
+
+      - alert: DatabaseSlowQueries
+        expr: rate(pg_stat_statements_mean_exec_time[5m]) > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High number of slow queries"
+          description: "Average query execution time is {{ $value }}ms"
+
+  - name: ssl_alerts
+    interval: 1h
+    rules:
+      - alert: SSLCertificateExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 30
+        for: 1h
+        labels:
+          severity: warning
+          service: ssl
+        annotations:
+          summary: "SSL certificate for {{ $labels.instance }} expires soon"
+          description: "Certificate expires in {{ $value | humanizeDuration }}"
+
+      - alert: SSLCertificateExpired
+        expr: probe_ssl_earliest_cert_expiry - time() < 0
+        for: 5m
+        labels:
+          severity: critical
+          service: ssl
+        annotations:
+          summary: "SSL certificate for {{ $labels.instance }} has expired!"
+          description: "Certificate expired {{ $value | humanizeDuration }} ago"
+
+  - name: application_alerts
+    interval: 30s
+    rules:
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: app
+        annotations:
+          summary: "High application error rate"
+          description: "Error rate is at {{ $value | humanizePercentage }}"
+
+      - alert: ApplicationDown
+        expr: up{job="app"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: app
+        annotations:
+          summary: "Application {{ $labels.instance }} is down"
+          description: "Application has been down for more than 1 minute"

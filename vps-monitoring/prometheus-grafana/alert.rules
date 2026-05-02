@@ -1,0 +1,206 @@
+groups:
+  # ===========================================
+  # System Alerts
+  # ===========================================
+  - name: system_alerts
+    interval: 30s
+    rules:
+      # High CPU Usage
+      - alert: HighCPU
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% on {{ $labels.instance }}"
+
+      # Critical CPU Usage
+      - alert: CriticalCPU
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical CPU usage"
+          description: "CPU usage is above 95% on {{ $labels.instance }}"
+
+      # High Memory Usage
+      - alert: HighMemory
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 85% on {{ $labels.instance }}"
+
+      # Critical Memory Usage
+      - alert: CriticalMemory
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 95
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical memory usage"
+          description: "Memory usage is above 95% on {{ $labels.instance }}"
+
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|fuse.lxcfs"}) * 100 < 15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk space low"
+          description: "Disk space is below 15% on {{ $labels.instance }} ({{ $labels.mountpoint }})"
+
+      # Disk Space Critical
+      - alert: DiskSpaceCritical
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|fuse.lxcfs"}) * 100 < 5
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk space critical"
+          description: "Disk space is below 5% on {{ $labels.instance }} ({{ $labels.mountpoint }})"
+
+  # ===========================================
+  # Docker Alerts
+  # ===========================================
+  - name: docker_alerts
+    interval: 30s
+    rules:
+      # Container Down
+      - alert: ContainerDown
+        expr: count(up{job="cadvisor"} == 1) by (container_label_com_docker_compose_service) == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container is down"
+          description: "Container {{ $labels.container_label_com_docker_compose_service }} is not running"
+
+      # High Container CPU
+      - alert: ContainerHighCPU
+        expr: rate(container_cpu_usage_seconds_total[5m]) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High container CPU"
+          description: "Container {{ $labels.container_label_com_docker_compose_service }} has high CPU usage"
+
+      # Container Restart Loop
+      - alert: ContainerRestartLoop
+        expr: rate(container_restart_count[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container restart loop"
+          description: "Container {{ $labels.container_label_com_docker_compose_service }} is restarting frequently"
+
+  # ===========================================
+  # Database Alerts (if exporters present)
+  # ===========================================
+  - name: database_alerts
+    interval: 30s
+    rules:
+      # PostgreSQL Down
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL instance {{ $labels.instance }} is not responding"
+
+      # MySQL Down
+      - alert: MySQLDown
+        expr: mysql_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MySQL is down"
+          description: "MySQL instance {{ $labels.instance }} is not responding"
+
+      # Redis Down
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis instance {{ $labels.instance }} is not responding"
+
+  # ===========================================
+  # Network Alerts
+  # ===========================================
+  - name: network_alerts
+    interval: 30s
+    rules:
+      # High Network Traffic
+      - alert: HighNetworkTraffic
+        expr: rate(node_network_receive_bytes_total[5m]) > 100000000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High network traffic"
+          description: "High network traffic on {{ $labels.instance }} ({{ $labels.device }})"
+
+      # Network Errors
+      - alert: NetworkErrors
+        expr: rate(node_network_receive_errors_total[5m]) + rate(node_network_transmit_errors_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Network errors detected"
+          description: "Network errors on {{ $labels.instance }} ({{ $labels.device }})"
+
+  # ===========================================
+  # Service Availability
+  # ===========================================
+  - name: service_alerts
+    interval: 30s
+    rules:
+      # Prometheus Target Down
+      - alert: TargetDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Target is down"
+          description: "Target {{ $labels.job }} on {{ $labels.instance }} is not responding"
+
+  # ===========================================
+  # Prometheus Self-monitoring
+  # ===========================================
+  - name: prometheus_alerts
+    interval: 30s
+    rules:
+      # Prometheus Job Missing
+      - alert: PrometheusJobMissing
+        expr: absent(up{job="prometheus"})
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus job is missing"
+          description: "Prometheus is not scraping targets"
+
+      # High Alerting Rule Evaluation Errors
+      - alert: PrometheusRuleEvaluationErrors
+        expr: rate(prometheus_rule_evaluation_errors_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus rule evaluation errors"
+          description: "Prometheus is experiencing rule evaluation errors"
